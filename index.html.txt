@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Server</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: white;
+            text-align: center;
+        }
+
+        header {
+            padding: 40px;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 1.2em;
+            color: #cbd5f5;
+        }
+
+        .box {
+            background: #1e293b;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 500px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .btn {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 12px 25px;
+            background: #3b82f6;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            background: #2563eb;
+        }
+
+        footer {
+            margin-top: 40px;
+            padding: 20px;
+            font-size: 0.9em;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🔥 My Server</h1>
+    <p>The best place to play</p>
+</header>
+
+<div class="box">
+    <h2>🎮 Server IP</h2>
+    <p><strong>play.yourserver.com</strong></p>
+</div>
+
+<div class="box">
+    <h2>📜 Rules</h2>
+    <p>No cheating, be respectful, have fun.</p>
+</div>
+
+<div class="box">
+    <h2>🛒 Store</h2>
+    <p>Support the server and get perks!</p>
+    <a href="#" class="btn">Visit Store</a>
+</div>
+
+<footer>
+    <p>© 2026 My Server</p>
+</footer>
+
+</body>
+</html>
