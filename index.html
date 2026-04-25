@@ -1,101 +1,151 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Minecraft Control Panel</title>
+<meta charset="UTF-8">
+<title>My Minecraft Server</title>
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #0f172a;
-            color: white;
-            text-align: center;
-        }
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: white;
+    text-align: center;
+}
 
-        .container {
-            margin-top: 80px;
-        }
+.container {
+    max-width: 800px;
+    margin: auto;
+    padding: 40px;
+}
 
-        .panel {
-            background: #1e293b;
-            width: 350px;
-            margin: 20px auto;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-        }
+h1 {
+    font-size: 42px;
+    margin-bottom: 10px;
+}
 
-        button {
-            width: 80%;
-            padding: 12px;
-            margin: 10px 0;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 16px;
-            background: #3b82f6;
-            color: white;
-            transition: 0.2s;
-        }
+.subtitle {
+    color: #94a3b8;
+    margin-bottom: 30px;
+}
 
-        button:hover {
-            background: #2563eb;
-        }
+.card {
+    background: #1e293b;
+    padding: 20px;
+    margin: 15px 0;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
 
-        .danger {
-            background: #ef4444;
-        }
+.ip {
+    font-size: 20px;
+    margin: 10px 0;
+    cursor: pointer;
+    color: #60a5fa;
+}
 
-        .danger:hover {
-            background: #dc2626;
-        }
+button {
+    padding: 12px 20px;
+    margin: 10px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    background: #3b82f6;
+    color: white;
+    font-size: 16px;
+}
 
-        .status {
-            margin-top: 15px;
-            font-size: 14px;
-            color: #94a3b8;
-        }
-    </style>
+button:hover {
+    background: #2563eb;
+}
+
+.danger {
+    background: #ef4444;
+}
+
+.danger:hover {
+    background: #dc2626;
+}
+
+.small {
+    font-size: 14px;
+    color: #94a3b8;
+}
+</style>
+
 </head>
 
 <body>
 
 <div class="container">
 
-    <h1>🎮 Minecraft Control Panel</h1>
+    <h1>🔥 My Server</h1>
+    <div class="subtitle">The cleanest Minecraft experience</div>
 
-    <div class="panel">
-
-        <button onclick="send('/survival')">🟢 Survival Mode</button>
-
-        <button onclick="send('/hardcore')">☠️ Hardcore Mode</button>
-
-        <button class="danger" onclick="send('/stop')">🔴 Stop Server</button>
-
-        <div class="status" id="status">
-            Ready to send commands
-        </div>
-
+    <!-- IP SECTION -->
+    <div class="card">
+        <div class="ip" onclick="copyIP()">play.yourserver.com (Click to copy)</div>
+        <div class="small">Click above to copy IP</div>
     </div>
+
+    <!-- GAMEPLAY -->
+    <div class="card">
+        <h2>🌍 Gameplay</h2>
+        <p>Survival, PvP, events, and custom features.</p>
+    </div>
+
+    <!-- RULES -->
+    <div class="card">
+        <h2>📜 Rules</h2>
+        <p>No cheating. No toxicity. Respect everyone.</p>
+    </div>
+
+    <!-- CONTROL PANEL (future + your Node system) -->
+    <div class="card">
+        <h2>🎮 Control Panel</h2>
+
+        <button onclick="send('/survival')">Survival</button>
+        <button onclick="send('/hardcore')">Hardcore</button>
+        <button class="danger" onclick="send('/stop')">Stop Server</button>
+
+        <p class="small" id="status">Ready</p>
+    </div>
+
+    <!-- LINKS -->
+    <div class="card">
+        <h2>💬 Community</h2>
+        <p>Join the Discord and stay updated.</p>
+        <button>Discord</button>
+        <button>Store</button>
+    </div>
+
+    <div class="small">© 2026 My Server</div>
 
 </div>
 
 <script>
+
+// copy IP
+function copyIP(){
+    navigator.clipboard.writeText("play.yourserver.com");
+    alert("IP copied!");
+}
+
+// send command to Node server
 function send(endpoint){
     fetch("http://localhost:3000" + endpoint, {
         method: "POST"
     })
-    .then(res => res.json())
-    .then(data => {
+    .then(() => {
         document.getElementById("status").innerText =
-            "Command sent: " + endpoint;
+        "Sent: " + endpoint;
     })
-    .catch(err => {
+    .catch(() => {
         document.getElementById("status").innerText =
-            "Error sending command";
+        "Error sending command";
     });
 }
+
 </script>
 
 </body>
