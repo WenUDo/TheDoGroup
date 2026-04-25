@@ -4,88 +4,108 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>EpicCraft Control Panel</title>
+<title>EpicCraft Server</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
 body {
     margin: 0;
-    background: linear-gradient(#1b3a1b, #0b0f14);
+    background: #121418;
     color: white;
     font-family: Inter;
 }
 
 /* HEADER */
 header {
-    background: #2c2416;
-    padding: 18px;
+    background: #2f2a1f;
+    padding: 40px 20px;
     text-align: center;
-    font-family: "Press Start 2P";
-    font-size: 12px;
     border-bottom: 4px solid black;
 }
 
-/* LAYOUT */
-.container {
-    max-width: 900px;
-    margin: auto;
-    padding: 20px;
-}
-
-/* CARDS */
-.card {
-    background: #1a1f27;
-    border: 3px solid black;
-    padding: 20px;
-    margin-bottom: 20px;
-}
-
-/* STATUS */
-.status {
+h1 {
     font-family: "Press Start 2P";
-    font-size: 10px;
-    margin-bottom: 10px;
+    font-size: 22px;
 }
 
-.online { color: #22c55e; }
-.offline { color: #ef4444; }
+.ip {
+    margin-top: 10px;
+    color: #aaa;
+}
 
-/* BUTTONS */
 button {
-    font-family: "Press Start 2P";
-    font-size: 10px;
-    padding: 12px;
-    border: 3px solid black;
+    padding: 10px 14px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 6px;
     cursor: pointer;
-    color: white;
+    font-weight: 600;
 }
 
-.start { background: #22c55e; }
-.stop { background: #ef4444; }
-.restart { background: #3b82f6; }
+.green { background: #22c55e; color: white; }
+.blue { background: #3b82f6; color: white; }
+.red { background: #ef4444; color: white; }
 
 button:hover {
     filter: brightness(1.2);
 }
 
-/* GRID */
-.buttons {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 10px;
+/* LAYOUT */
+section {
+    max-width: 900px;
+    margin: auto;
+    padding: 30px 20px;
 }
 
-/* CONSOLE */
+/* STATUS */
+.status {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.online { color: #22c55e; }
+.offline { color: #ef4444; }
+
+/* TABLE */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+td, th {
+    padding: 12px;
+    border-bottom: 1px solid #333;
+}
+
+.buy {
+    background: #3b82f6;
+}
+
+/* FOOTER */
+footer {
+    text-align: center;
+    padding: 30px;
+    color: #888;
+    border-top: 1px solid #333;
+}
+
+/* ADMIN PANEL */
+.admin {
+    background: #1a1f27;
+    padding: 20px;
+    border: 2px solid #333;
+    margin-top: 20px;
+}
+
 .console {
     background: black;
-    height: 180px;
+    height: 140px;
     overflow-y: auto;
     padding: 10px;
     font-family: monospace;
     font-size: 12px;
     color: #55ff55;
-    border: 3px solid black;
 }
 </style>
 
@@ -93,77 +113,125 @@ button:hover {
 
 <body>
 
+<!-- HEADER -->
 <header>
-⛏ EPICCRAFT CONTROL PANEL
+    <h1>⛏ EpicCraft</h1>
+
+    <div class="ip">play.epiccraft.com</div>
+
+    <button class="green" onclick="copyIP()" id="copyBtn">Copy IP</button>
 </header>
 
-<div class="container">
+<!-- STATUS -->
+<section>
+    <h2>Server Status</h2>
+    <div class="status" id="state">Loading...</div>
+    <div>Players: <span id="players">-</span></div>
+</section>
 
-    <!-- STATUS -->
-    <div class="card">
-        <div class="status">WORLD STATUS: <span id="state">Loading...</span></div>
-        <div>Players: <span id="players">-</span></div>
-    </div>
+<!-- RULES -->
+<section>
+    <h2>Rules</h2>
+    <ul>
+        <li>No griefing</li>
+        <li>No stealing</li>
+        <li>Be respectful</li>
+        <li>No hacking</li>
+        <li>Have fun</li>
+    </ul>
+</section>
 
-    <!-- CONTROLS -->
-    <div class="card">
-        <div class="buttons">
-            <button class="start" onclick="start()">START</button>
-            <button class="stop" onclick="stop()">STOP</button>
-            <button class="restart" onclick="restart()">RESTART</button>
-        </div>
-    </div>
+<!-- STORE -->
+<section>
+    <h2>Store</h2>
 
-    <!-- CONSOLE -->
-    <div class="card">
-        <div class="console" id="log"></div>
-    </div>
+    <table>
+        <tr>
+            <th>Rank</th>
+            <th>Price</th>
+            <th></th>
+        </tr>
 
-</div>
+        <tr>
+            <td>VIP</td>
+            <td>$5</td>
+            <td><button class="buy">Buy Now</button></td>
+        </tr>
+
+        <tr>
+            <td>MVP</td>
+            <td>$10</td>
+            <td><button class="buy">Buy Now</button></td>
+        </tr>
+
+        <tr>
+            <td>Legend</td>
+            <td>$20</td>
+            <td><button class="buy">Buy Now</button></td>
+        </tr>
+    </table>
+</section>
+
+<!-- ADMIN CONTROLS (CONNECTED TO SERVER.JS) -->
+<section class="admin">
+    <h2>Server Controls</h2>
+
+    <button class="green" onclick="start()">Start</button>
+    <button class="red" onclick="stop()">Stop</button>
+    <button class="blue" onclick="restart()">Restart</button>
+
+    <h3>Console</h3>
+    <div class="console" id="log"></div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    © 2026 EpicCraft •
+    <a href="#">Discord</a> •
+    <a href="#">Twitter</a>
+</footer>
 
 <script>
 
 const API = "https://YOUR-NGROK-LINK.ngrok-free.dev";
 const KEY = "my-secret-key-123";
 
-/* shared headers (IMPORTANT FIX) */
 const headers = {
     "Content-Type": "application/json",
     "x-api-key": KEY
 };
 
+/* COPY IP */
+function copyIP(){
+    navigator.clipboard.writeText("play.epiccraft.com");
+
+    const btn = document.getElementById("copyBtn");
+    btn.innerText = "Copied!";
+
+    setTimeout(() => {
+        btn.innerText = "Copy IP";
+    }, 2000);
+}
+
+/* LOG */
 function log(t){
     document.getElementById("log").innerHTML += "» " + t + "<br>";
 }
 
-/* START */
+/* SERVER CONTROLS */
 function start(){
-    fetch(API + "/start", {
-        method: "POST",
-        headers
-    });
-
-    log("🚀 Starting server...");
+    fetch(API + "/start", { method: "POST", headers });
+    log("Starting server...");
 }
 
-/* STOP */
 function stop(){
-    fetch(API + "/stop", {
-        method: "POST",
-        headers
-    });
-
-    log("⛔ Stopping server...");
+    fetch(API + "/stop", { method: "POST", headers });
+    log("Stopping server...");
 }
 
-/* RESTART */
 function restart(){
-    fetch(API + "/restart", {
-        method: "POST",
-        headers
-    });
-
-    log("🔄 Restarting server...");
+    fetch(API + "/restart", { method: "POST", headers });
+    log("Restarting server...");
 }
 
 /* STATUS */
