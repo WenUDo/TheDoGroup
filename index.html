@@ -2,130 +2,85 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Minecraft Control Dashboard</title>
+<title>Minecraft Control Panel</title>
 
 <style>
 body {
     margin: 0;
-    font-family: Arial;
-    background: radial-gradient(circle at top, #0f172a, #020617);
+    font-family: Arial, sans-serif;
+    background: #0f172a;
     color: white;
+    text-align: center;
 }
 
-/* layout */
-.container {
-    display: grid;
-    grid-template-columns: 250px 1fr;
-    height: 100vh;
+.header {
+    padding: 40px;
 }
 
-/* sidebar */
-.sidebar {
-    background: #111827;
-    padding: 20px;
+h1 {
+    font-size: 40px;
+    margin-bottom: 5px;
 }
 
-.sidebar h2 {
-    color: #3b82f6;
+.subtitle {
+    color: #94a3b8;
 }
 
-.tab {
-    padding: 10px;
-    margin: 10px 0;
-    background: #1f2937;
-    border-radius: 8px;
-    cursor: pointer;
-}
-
-.tab:hover {
-    background: #3b82f6;
-}
-
-/* main */
-.main {
-    padding: 30px;
-}
-
-.card {
+.panel {
+    max-width: 500px;
+    margin: auto;
+    margin-top: 30px;
     background: #111827;
     padding: 20px;
     border-radius: 12px;
-    margin-bottom: 20px;
 }
 
-/* buttons */
 button {
-    padding: 12px;
-    margin: 8px;
+    width: 90%;
+    padding: 15px;
+    margin: 10px;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
+    font-size: 16px;
     cursor: pointer;
+    color: white;
 }
 
 .green { background: #22c55e; }
 .yellow { background: #eab308; }
 .red { background: #ef4444; }
 
-/* console */
-.console {
-    height: 200px;
-    background: black;
-    padding: 10px;
-    overflow-y: auto;
-    font-family: monospace;
-    font-size: 12px;
+.status {
+    margin-top: 15px;
+    color: #94a3b8;
 }
 </style>
-
 </head>
 
 <body>
 
-<div class="container">
-
-<!-- SIDEBAR -->
-<div class="sidebar">
-    <h2>🔥 Server Panel</h2>
-    <div class="tab">Dashboard</div>
-    <div class="tab">Controls</div>
-    <div class="tab">Console</div>
-
-    <p id="statusText">Checking...</p>
+<div class="header">
+    <h1>🔥 My Minecraft Server</h1>
+    <div class="subtitle">Control Panel Dashboard</div>
 </div>
 
-<!-- MAIN -->
-<div class="main">
+<div class="panel">
 
-    <div class="card">
-        <h2>🌍 Server Status</h2>
-        <p id="status">Loading...</p>
-        <p id="players"></p>
-    </div>
+    <button class="green" onclick="send('gamemode survival')">🟢 Survival</button>
+    <button class="yellow" onclick="send('difficulty hard')">☠️ Hardcore (Hard Mode)</button>
+    <button class="red" onclick="send('stop')">🔴 Stop Server</button>
 
-    <div class="card">
-        <h2>🎮 Controls</h2>
-
-        <button class="green" onclick="cmd('gamemode survival')">Survival</button>
-        <button class="yellow" onclick="cmd('difficulty hard')">Hard Mode</button>
-        <button class="red" onclick="cmd('stop')">Stop Server</button>
-    </div>
-
-    <div class="card">
-        <h2>💻 Console</h2>
-        <div class="console" id="console"></div>
-    </div>
-
-</div>
+    <div class="status" id="status">Ready</div>
 
 </div>
 
 <script>
 
 const API = "https://flashy-stardust-endless.ngrok-free.dev";
-const KEY = "TDG2427";
+const KEY = "my-secret-key-123";
 
-// send command
-function cmd(command){
+// SEND COMMAND (FIXED + WORKING)
+function send(command){
     fetch(API + "/command", {
         method: "POST",
         headers: {
@@ -134,35 +89,21 @@ function cmd(command){
         },
         body: JSON.stringify({ command })
     })
-    .then(r => r.json())
+    .then(res => res.json())
     .then(data => {
-        log("✔ " + command);
+        if(data.success){
+            document.getElementById("status").innerText =
+                "Sent: " + command;
+        } else {
+            document.getElementById("status").innerText =
+                "Failed (check server)";
+        }
+    })
+    .catch(() => {
+        document.getElementById("status").innerText =
+            "Connection error";
     });
 }
-
-// log console
-function log(text){
-    document.getElementById("console").innerHTML += text + "<br>";
-}
-
-// live status
-async function update(){
-    try {
-        let res = await fetch(API + "/status");
-        let data = await res.json();
-
-        document.getElementById("status").innerText =
-            data.online ? "🟢 Online" : "🔴 Offline";
-
-        document.getElementById("players").innerText =
-            data.players;
-    } catch {
-        document.getElementById("status").innerText = "🔴 Offline";
-    }
-}
-
-setInterval(update, 5000);
-update();
 
 </script>
 
