@@ -1,94 +1,78 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Minecraft Control Panel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<title>EpicCraft Admin</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
 body {
     margin: 0;
-    background: linear-gradient(#2b5a2b, #1a1a1a);
-    font-family: Inter;
+    font-family: Inter, sans-serif;
+    background: #0b0f14;
     color: white;
 }
 
-/* top bar */
-.top {
-    background: #3a2f1f;
-    padding: 18px;
-    font-family: "Press Start 2P";
-    font-size: 14px;
-    text-align: center;
-    border-bottom: 4px solid #000;
-}
-
-/* layout */
-.container {
-    max-width: 900px;
-    margin: auto;
+header {
+    background: #111827;
     padding: 20px;
+    text-align: center;
+    font-weight: 700;
+    border-bottom: 1px solid #1f2937;
 }
 
-/* panel */
-.panel {
-    background: #2d2d2d;
-    border: 4px solid #000;
+.container {
+    max-width: 800px;
+    margin: auto;
+    padding: 30px;
+}
+
+.card {
+    background: #111827;
+    border: 1px solid #1f2937;
+    border-radius: 12px;
     padding: 20px;
     margin-bottom: 20px;
+}
+
+/* buttons */
+button {
+    padding: 12px;
+    margin: 5px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    color: white;
+}
+
+.start { background: #22c55e; }
+.stop { background: #ef4444; }
+.restart { background: #3b82f6; }
+
+button:hover {
+    opacity: 0.85;
 }
 
 /* status */
 .status {
     font-size: 18px;
-    margin-bottom: 10px;
-}
-
-/* minecraft buttons */
-button {
-    font-family: "Press Start 2P";
-    font-size: 10px;
-    padding: 12px;
-    border: 3px solid black;
-    cursor: pointer;
-    color: white;
-}
-
-.green { background: #3c8d2f; }
-.red { background: #a83232; }
-.blue { background: #2f5fa8; }
-
-button:hover {
-    filter: brightness(1.2);
-}
-
-/* grid buttons */
-.buttons {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 10px;
-    margin-top: 10px;
+    font-weight: 600;
 }
 
 /* console */
 .console {
     background: black;
-    height: 180px;
+    height: 200px;
     overflow-y: auto;
     padding: 10px;
     font-family: monospace;
     font-size: 12px;
-    border: 3px solid #000;
-    color: #55ff55;
-}
-
-/* label */
-.label {
-    font-family: "Press Start 2P";
-    font-size: 10px;
-    margin-bottom: 10px;
-    color: #ccc;
+    border-radius: 8px;
+    color: #22c55e;
 }
 </style>
 
@@ -96,39 +80,27 @@ button:hover {
 
 <body>
 
-<div class="top">
-⛏ Minecraft Control Panel
-</div>
+<header>
+    ⛏ EpicCraft Control Panel
+</header>
 
 <div class="container">
 
     <!-- STATUS -->
-    <div class="panel">
-        <div class="label">WORLD STATUS</div>
-        <div class="status">State: <span id="state">Loading...</span></div>
+    <div class="card">
+        <div>Status: <span id="state">Loading...</span></div>
         <div>Players: <span id="players">-</span></div>
     </div>
 
     <!-- CONTROLS -->
-    <div class="panel">
-        <div class="label">SERVER CONTROLS</div>
-
-        <div class="buttons">
-            <button class="green" onclick="start()">START</button>
-            <button class="red" onclick="stop()">STOP</button>
-            <button class="blue" onclick="restart()">RESTART</button>
-        </div>
-
-        <div class="buttons" style="margin-top:10px;">
-            <button class="blue" onclick="cmd('gamemode survival')">SURVIVAL</button>
-            <button class="blue" onclick="cmd('gamemode creative')">CREATIVE</button>
-            <button class="blue" onclick="cmd('time set day')">DAY</button>
-        </div>
+    <div class="card">
+        <button class="start" onclick="startServer()">Start</button>
+        <button class="stop" onclick="stopServer()">Stop</button>
+        <button class="restart" onclick="restartServer()">Restart</button>
     </div>
 
-    <!-- CONSOLE -->
-    <div class="panel">
-        <div class="label">CHAT LOG</div>
+    <!-- LOG -->
+    <div class="card">
         <div class="console" id="log"></div>
     </div>
 
@@ -136,48 +108,58 @@ button:hover {
 
 <script>
 
-const API = "https://flashy-stardust-endless.ngrok-free.dev";
+const API = "https://YOUR-NGROK-LINK.ngrok-free.dev";
 const KEY = "my-secret-key-123";
 
-function log(t){
-    document.getElementById("log").innerHTML += "» " + t + "<br>";
+/* reusable headers (IMPORTANT FIX) */
+const headers = {
+    "Content-Type": "application/json",
+    "x-api-key": KEY
+};
+
+function log(msg){
+    document.getElementById("log").innerHTML += "» " + msg + "<br>";
 }
 
-function start(){
-    fetch(API+"/start",{headers:{"x-api-key":KEY}});
+/* START */
+function startServer(){
+    fetch(API + "/start", {
+        method: "POST",
+        headers
+    });
+
     log("Server starting...");
 }
 
-function stop(){
-    fetch(API+"/stop",{headers:{"x-api-key":KEY}});
+/* STOP */
+function stopServer(){
+    fetch(API + "/stop", {
+        method: "POST",
+        headers
+    });
+
     log("Server stopping...");
 }
 
-function restart(){
-    fetch(API+"/restart",{headers:{"x-api-key":KEY}});
+/* RESTART */
+function restartServer(){
+    fetch(API + "/restart", {
+        method: "POST",
+        headers
+    });
+
     log("Server restarting...");
 }
 
-function cmd(c){
-    fetch(API+"/command",{
-        method:"POST",
-        headers:{
-            "Content-Type":"application/json",
-            "x-api-key":KEY
-        },
-        body:JSON.stringify({command:c})
-    });
-
-    log("Command: " + c);
-}
-
+/* STATUS CHECK */
 async function update(){
     try {
-        const res = await fetch(API+"/status");
+        const res = await fetch(API + "/status");
         const data = await res.json();
 
         document.getElementById("state").innerText = data.state;
         document.getElementById("players").innerText = data.players;
+
     } catch {
         document.getElementById("state").innerText = "OFFLINE";
     }
