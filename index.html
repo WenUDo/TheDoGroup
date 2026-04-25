@@ -2,56 +2,34 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Minecraft Pro Panel</title>
+<title>MAX PANEL</title>
 
 <style>
 body {
     margin: 0;
     font-family: Arial;
-    background: #0a0f1c;
+    background: #050816;
     color: white;
 }
 
-/* layout */
-.container {
-    display: flex;
-    height: 100vh;
+.header {
+    padding: 20px;
+    background: #0f172a;
 }
 
-/* sidebar */
-.sidebar {
-    width: 250px;
-    background: #0f172a;
+.container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
     padding: 20px;
 }
 
-.logo {
-    font-size: 18px;
-    font-weight: bold;
-    color: #60a5fa;
-    margin-bottom: 20px;
-}
-
-/* main */
-.main {
-    flex: 1;
-    padding: 30px;
-}
-
-/* cards */
 .card {
     background: #111827;
     padding: 20px;
     border-radius: 12px;
-    margin-bottom: 15px;
 }
 
-.status {
-    font-size: 20px;
-    font-weight: bold;
-}
-
-/* buttons */
 button {
     padding: 12px;
     margin: 5px;
@@ -64,45 +42,43 @@ button {
 .green { background: #22c55e; }
 .red { background: #ef4444; }
 .blue { background: #3b82f6; }
-.yellow { background: #eab308; }
 
-/* log */
-.log {
+.console {
     height: 200px;
     background: black;
     padding: 10px;
-    font-family: monospace;
     overflow-y: auto;
+    font-family: monospace;
+    font-size: 12px;
 }
 </style>
+
 </head>
 
 <body>
 
-<div class="container">
-
-<div class="sidebar">
-    <div class="logo">⚡ PRO PANEL</div>
-    <div>Dashboard</div>
+<div class="header">
+    <h2>🔥 MAX LEVEL SERVER PANEL</h2>
+    <div id="status">Loading...</div>
 </div>
 
-<div class="main">
+<div class="container">
 
-    <div class="card">
-        <div>Status: <span id="state">Loading...</span></div>
-        <div>Players: <span id="players">-</span></div>
-    </div>
+<div class="card">
+    <h3>Controls</h3>
 
-    <div class="card">
-        <button class="blue" onclick="start()">Start</button>
-        <button class="red" onclick="stop()">Stop</button>
-        <button class="yellow" onclick="restart()">Restart</button>
+    <button class="blue" onclick="start()">Start</button>
+    <button class="red" onclick="stop()">Stop</button>
+    <button class="blue" onclick="restart()">Restart</button>
 
-        <button class="green" onclick="cmd('gamemode survival')">Survival</button>
-    </div>
+    <button class="green" onclick="cmd('gamemode survival')">Survival</button>
 
-    <div class="card log" id="log"></div>
+    <div id="players">Players: -</div>
+</div>
 
+<div class="card">
+    <h3>Console</h3>
+    <div class="console" id="log"></div>
 </div>
 
 </div>
@@ -112,23 +88,23 @@ button {
 const API = "https://flashy-stardust-endless.ngrok-free.dev";
 const KEY = "my-secret-key-123";
 
-function log(msg){
-    document.getElementById("log").innerHTML += msg + "<br>";
+function log(t){
+    document.getElementById("log").innerHTML += t + "<br>";
 }
 
 function start(){
     fetch(API+"/start",{headers:{"x-api-key":KEY}});
-    log("🚀 Starting...");
+    log("🚀 start");
 }
 
 function stop(){
     fetch(API+"/stop",{headers:{"x-api-key":KEY}});
-    log("⛔ Stopping...");
+    log("⛔ stop");
 }
 
 function restart(){
     fetch(API+"/restart",{headers:{"x-api-key":KEY}});
-    log("🔄 Restarting...");
+    log("🔄 restart");
 }
 
 function cmd(c){
@@ -145,11 +121,14 @@ function cmd(c){
 }
 
 async function update(){
-    const res = await fetch(API+"/status");
-    const data = await res.json();
+    const r = await fetch(API+"/status");
+    const d = await r.json();
 
-    document.getElementById("state").innerText = data.state;
-    document.getElementById("players").innerText = data.players;
+    document.getElementById("status").innerText =
+        "STATE: " + d.state;
+
+    document.getElementById("players").innerText =
+        "Players: " + d.players;
 }
 
 setInterval(update, 3000);
