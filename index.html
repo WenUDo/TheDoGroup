@@ -2,74 +2,110 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>My Minecraft Server</title>
+<title>Server Control Panel</title>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap');
+
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
-    background: #0f172a;
+    font-family: 'Orbitron', sans-serif;
+    background: radial-gradient(circle at top, #1e293b, #0f172a);
     color: white;
+    overflow-x: hidden;
+}
+
+/* HEADER */
+.header {
+    text-align: center;
+    padding: 60px 20px 20px;
+}
+
+.header h1 {
+    font-size: 48px;
+    margin: 0;
+    text-shadow: 0 0 20px #3b82f6;
+}
+
+.header p {
+    color: #94a3b8;
+    margin-top: 10px;
+}
+
+/* IP BOX */
+.ip-box {
+    margin: 20px auto;
+    background: rgba(30, 41, 59, 0.8);
+    width: fit-content;
+    padding: 10px 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    border: 1px solid #3b82f6;
+    transition: 0.2s;
+}
+
+.ip-box:hover {
+    transform: scale(1.05);
+}
+
+/* PANEL */
+.panel {
+    max-width: 500px;
+    margin: 40px auto;
+    background: rgba(30, 41, 59, 0.9);
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 0 30px rgba(59,130,246,0.3);
     text-align: center;
 }
 
-.container {
-    max-width: 800px;
-    margin: auto;
-    padding: 40px;
-}
-
-h1 {
-    font-size: 42px;
-    margin-bottom: 10px;
-}
-
-.subtitle {
-    color: #94a3b8;
-    margin-bottom: 30px;
-}
-
-.card {
-    background: #1e293b;
-    padding: 20px;
-    margin: 15px 0;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-}
-
-.ip {
-    font-size: 20px;
-    margin: 10px 0;
-    cursor: pointer;
-    color: #60a5fa;
-}
-
+/* BUTTONS */
 button {
-    padding: 12px 20px;
-    margin: 10px;
+    width: 90%;
+    padding: 14px;
+    margin: 10px 0;
     border: none;
     border-radius: 10px;
-    cursor: pointer;
-    background: #3b82f6;
-    color: white;
     font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+    color: white;
 }
 
-button:hover {
-    background: #2563eb;
+.survival {
+    background: #3b82f6;
 }
 
-.danger {
+.hardcore {
+    background: #f59e0b;
+}
+
+.stop {
     background: #ef4444;
 }
 
-.danger:hover {
-    background: #dc2626;
+button:hover {
+    transform: scale(1.05);
 }
 
-.small {
+/* STATUS */
+.status {
+    margin-top: 15px;
     font-size: 14px;
     color: #94a3b8;
+}
+
+/* GLOW EFFECT */
+.glow {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: #3b82f6;
+    filter: blur(150px);
+    opacity: 0.2;
+    top: -100px;
+    left: -100px;
+    z-index: -1;
 }
 </style>
 
@@ -77,63 +113,39 @@ button:hover {
 
 <body>
 
-<div class="container">
+<div class="glow"></div>
 
-    <h1>🔥 My Server</h1>
-    <div class="subtitle">The cleanest Minecraft experience</div>
+<div class="header">
+    <h1>🔥 My Minecraft Server</h1>
+    <p>The cleanest, most OP server control panel</p>
 
-    <!-- IP SECTION -->
-    <div class="card">
-        <div class="ip" onclick="copyIP()">play.yourserver.com (Click to copy)</div>
-        <div class="small">Click above to copy IP</div>
+    <div class="ip-box" onclick="copyIP()">
+        🌍 flashy-stardust-endless.ngrok-free.dev (click to copy)
     </div>
+</div>
 
-    <!-- GAMEPLAY -->
-    <div class="card">
-        <h2>🌍 Gameplay</h2>
-        <p>Survival, PvP, events, and custom features.</p>
-    </div>
+<div class="panel">
 
-    <!-- RULES -->
-    <div class="card">
-        <h2>📜 Rules</h2>
-        <p>No cheating. No toxicity. Respect everyone.</p>
-    </div>
+    <h2>🎮 Control Panel</h2>
 
-    <!-- CONTROL PANEL (future + your Node system) -->
-    <div class="card">
-        <h2>🎮 Control Panel</h2>
+    <button class="survival" onclick="send('/survival')">🟢 Survival Mode</button>
 
-        <button onclick="send('/survival')">Survival</button>
-        <button onclick="send('/hardcore')">Hardcore</button>
-        <button class="danger" onclick="send('/stop')">Stop Server</button>
+    <button class="hardcore" onclick="send('/hardcore')">☠️ Hardcore Mode</button>
 
-        <p class="small" id="status">Ready</p>
-    </div>
+    <button class="stop" onclick="send('/stop')">🔴 Stop Server</button>
 
-    <!-- LINKS -->
-    <div class="card">
-        <h2>💬 Community</h2>
-        <p>Join the Discord and stay updated.</p>
-        <button>Discord</button>
-        <button>Store</button>
-    </div>
-
-    <div class="small">© 2026 My Server</div>
+    <div class="status" id="status">Ready to dominate your server 😎</div>
 
 </div>
 
 <script>
 
-// copy IP
-function copyIP(){
-    navigator.clipboard.writeText("play.yourserver.com");
-    alert("IP copied!");
-}
+// YOUR NGROK LINK (already plugged in)
+const baseURL = "https://flashy-stardust-endless.ngrok-free.dev";
 
-// send command to Node server
+// send command
 function send(endpoint){
-    fetch("http://localhost:3000" + endpoint, {
+    fetch(baseURL + endpoint, {
         method: "POST"
     })
     .then(() => {
@@ -144,6 +156,12 @@ function send(endpoint){
         document.getElementById("status").innerText =
         "Error sending command";
     });
+}
+
+// copy IP
+function copyIP(){
+    navigator.clipboard.writeText("flashy-stardust-endless.ngrok-free.dev");
+    alert("IP copied!");
 }
 
 </script>
