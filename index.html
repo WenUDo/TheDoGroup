@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <title>Minecraft Control Panel</title>
@@ -7,29 +7,15 @@
 <style>
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
+    font-family: Arial;
     background: #0f172a;
     color: white;
     text-align: center;
 }
 
-.header {
-    padding: 40px;
-}
-
-h1 {
-    font-size: 40px;
-    margin-bottom: 5px;
-}
-
-.subtitle {
-    color: #94a3b8;
-}
-
 .panel {
-    max-width: 500px;
-    margin: auto;
-    margin-top: 30px;
+    max-width: 520px;
+    margin: 40px auto;
     background: #111827;
     padding: 20px;
     border-radius: 12px;
@@ -37,11 +23,10 @@ h1 {
 
 button {
     width: 90%;
-    padding: 15px;
-    margin: 10px;
+    padding: 14px;
+    margin: 8px;
     border: none;
     border-radius: 10px;
-    font-size: 16px;
     cursor: pointer;
     color: white;
 }
@@ -49,9 +34,10 @@ button {
 .green { background: #22c55e; }
 .yellow { background: #eab308; }
 .red { background: #ef4444; }
+.blue { background: #3b82f6; }
 
 .status {
-    margin-top: 15px;
+    margin-top: 10px;
     color: #94a3b8;
 }
 </style>
@@ -59,18 +45,20 @@ button {
 
 <body>
 
-<div class="header">
-    <h1>🔥 My Minecraft Server</h1>
-    <div class="subtitle">Control Panel Dashboard</div>
-</div>
+<h1>🔥 Minecraft Control Panel</h1>
 
 <div class="panel">
 
-    <button class="green" onclick="send('gamemode survival')">🟢 Survival</button>
-    <button class="yellow" onclick="send('difficulty hard')">☠️ Hardcore (Hard Mode)</button>
-    <button class="red" onclick="send('stop')">🔴 Stop Server</button>
+    <!-- SERVER CONTROL -->
+    <button class="blue" onclick="startServer()">▶ Start Server</button>
+    <button class="red" onclick="stopServer()">⛔ Stop Server</button>
+    <button class="blue" onclick="restartServer()">🔄 Restart Server</button>
 
-    <div class="status" id="status">Ready</div>
+    <!-- GAME CONTROLS -->
+    <button class="green" onclick="send('gamemode survival')">Survival</button>
+    <button class="yellow" onclick="send('difficulty hard')">Hardcore</button>
+
+    <div class="status" id="status">Loading...</div>
 
 </div>
 
@@ -79,7 +67,7 @@ button {
 const API = "https://flashy-stardust-endless.ngrok-free.dev";
 const KEY = "my-secret-key-123";
 
-// SEND COMMAND (FIXED + WORKING)
+// COMMANDS
 function send(command){
     fetch(API + "/command", {
         method: "POST",
@@ -88,22 +76,62 @@ function send(command){
             "x-api-key": KEY
         },
         body: JSON.stringify({ command })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if(data.success){
-            document.getElementById("status").innerText =
-                "Sent: " + command;
-        } else {
-            document.getElementById("status").innerText =
-                "Failed (check server)";
-        }
-    })
-    .catch(() => {
-        document.getElementById("status").innerText =
-            "Connection error";
     });
+
+    document.getElementById("status").innerText =
+        "Sent: " + command;
 }
+
+// START
+function startServer(){
+    fetch(API + "/start", {
+        method: "POST",
+        headers: { "x-api-key": KEY }
+    });
+
+    document.getElementById("status").innerText =
+        "Starting server...";
+}
+
+// STOP
+function stopServer(){
+    fetch(API + "/stop", {
+        method: "POST",
+        headers: { "x-api-key": KEY }
+    });
+
+    document.getElementById("status").innerText =
+        "Stopping server...";
+}
+
+// RESTART
+function restartServer(){
+    fetch(API + "/restart", {
+        method: "POST",
+        headers: { "x-api-key": KEY }
+    });
+
+    document.getElementById("status").innerText =
+        "Restarting server...";
+}
+
+// STATUS LOOP
+async function update(){
+    try {
+        const res = await fetch(API + "/status");
+        const data = await res.json();
+
+        document.getElementById("status").innerText =
+            data.online ? "🟢 Online | " + data.players : "🔴 Offline";
+
+    } catch {
+        document.getElementById("status").innerText =
+            "⚠️ Connection error";
+    }
+}
+
+setInterval(update, 5000);
+update();
 
 </script>
 
