@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Server</title>
+    <title>My Minecraft Server</title>
 
     <style>
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #0f172a, #1e293b);
+            background: linear-gradient(135deg, #020617, #0f172a);
             color: white;
             text-align: center;
         }
 
         header {
-            padding: 40px;
+            padding: 60px 20px;
         }
 
         h1 {
@@ -23,40 +23,41 @@
             margin-bottom: 10px;
         }
 
-        p {
-            font-size: 1.2em;
-            color: #cbd5f5;
+        .ip {
+            background: #22c55e;
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 10px;
+            margin-top: 10px;
+            font-weight: bold;
         }
 
-        .box {
+        .container {
+            padding: 20px;
+        }
+
+        .card {
             background: #1e293b;
             margin: 20px auto;
-            padding: 20px;
+            padding: 25px;
             border-radius: 15px;
-            width: 80%;
             max-width: 500px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            box-shadow: 0 0 25px rgba(0,0,0,0.6);
         }
 
         .btn {
             display: inline-block;
             margin-top: 15px;
             padding: 12px 25px;
-            background: #3b82f6;
+            background: #5865F2;
             color: white;
             text-decoration: none;
             border-radius: 10px;
-            transition: 0.3s;
-        }
-
-        .btn:hover {
-            background: #2563eb;
         }
 
         footer {
             margin-top: 40px;
             padding: 20px;
-            font-size: 0.9em;
             color: #94a3b8;
         }
     </style>
@@ -64,28 +65,39 @@
 <body>
 
 <header>
-    <h1>🔥 My Server</h1>
-    <p>The best place to play</p>
+    <h1>🔥 My Minecraft Server</h1>
+    <p>Join now and start playing!</p>
+    <div class="ip">play.yourserver.com</div>
 </header>
 
-<div class="box">
-    <h2>🎮 Server IP</h2>
-    <p><strong>play.yourserver.com</strong></p>
-</div>
+<div class="container">
 
-<div class="box">
-    <h2>📜 Rules</h2>
-    <p>No cheating, be respectful, have fun.</p>
-</div>
+    <div class="card">
+        <h2>🌍 About</h2>
+        <p>Survival, PvP, events, and more. Built for fun and competition.</p>
+    </div>
 
-<div class="box">
-    <h2>🛒 Store</h2>
-    <p>Support the server and get perks!</p>
-    <a href="#" class="btn">Visit Store</a>
+    <div class="card">
+        <h2>📜 Rules</h2>
+        <p>No hacking, no toxicity, respect all players.</p>
+    </div>
+
+    <div class="card">
+        <h2>💬 Discord</h2>
+        <p>Join our community</p>
+        <a href="#" class="btn">Join Discord</a>
+    </div>
+
+    <div class="card">
+        <h2>🛒 Store</h2>
+        <p>Support the server and unlock perks</p>
+        <a href="#" class="btn">Visit Store</a>
+    </div>
+
 </div>
 
 <footer>
-    <p>© 2026 My Server</p>
+    <p>© 2026 My Minecraft Server</p>
 </footer>
 
 </body>
