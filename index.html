@@ -4,111 +4,133 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>EpicCraft Network</title>
+<title>Minecraft Network</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
 body {
     margin: 0;
     font-family: Inter;
-    background: radial-gradient(circle at top, #0f1a12, #05070a);
+    background: radial-gradient(circle at top, #0b1220, #05070a);
     color: white;
     overflow-x: hidden;
+}
+
+/* background glow */
+.bg {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(34,197,94,0.12), transparent 40%),
+        radial-gradient(circle at 80% 30%, rgba(59,130,246,0.12), transparent 40%);
+    z-index: -1;
 }
 
 /* HEADER */
 header {
     text-align: center;
-    padding: 60px 20px;
+    padding: 60px 20px 20px;
 }
 
 h1 {
     font-family: "Press Start 2P";
-    font-size: 20px;
-    margin-bottom: 10px;
+    font-size: 18px;
 }
 
-.ip {
+.sub {
     color: #9ca3af;
-}
-
-/* STATUS BADGE */
-.badge {
-    display: inline-block;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-weight: bold;
     margin-top: 10px;
 }
 
-.online { background: #1f6f3b; color: #22c55e; }
-.offline { background: #3a1f1f; color: #ef4444; }
-.starting { background: #2d2a1f; color: #facc15; }
-
-/* LAYOUT */
-section {
+/* GRID HUB */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
     max-width: 1000px;
     margin: auto;
     padding: 20px;
 }
 
-/* CARDS */
+/* SERVER CARD */
 .card {
-    background: rgba(255,255,255,0.03);
+    background: rgba(255,255,255,0.04);
     border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
+    border-radius: 14px;
+    padding: 18px;
+    transition: 0.2s;
     backdrop-filter: blur(10px);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(34,197,94,0.4);
+}
+
+.title {
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.desc {
+    font-size: 13px;
+    color: #9ca3af;
+    margin-top: 6px;
+}
+
+/* STATUS */
+.badge {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.online { background: rgba(34,197,94,0.2); color: #22c55e; }
+.offline { background: rgba(239,68,68,0.2); color: #ef4444; }
+.starting { background: rgba(250,204,21,0.2); color: #facc15; }
+
+/* PANEL */
+.panel {
+    max-width: 1000px;
+    margin: auto;
+    padding: 20px;
+}
+
+.console {
+    background: black;
+    height: 160px;
+    overflow-y: auto;
+    padding: 10px;
+    font-family: monospace;
+    font-size: 12px;
+    color: #55ff55;
+    border-radius: 10px;
 }
 
 /* BUTTONS */
 button {
     padding: 10px 14px;
     margin: 5px;
-    border-radius: 8px;
     border: none;
+    border-radius: 8px;
     cursor: pointer;
-    font-weight: 600;
-    transition: 0.15s;
-}
-
-button:hover {
-    transform: scale(1.05);
+    font-weight: 700;
 }
 
 .green { background: #22c55e; color: black; }
 .red { background: #ef4444; color: white; }
 .blue { background: #3b82f6; color: white; }
 
-/* CONSOLE */
-.console {
-    background: black;
-    height: 180px;
-    overflow-y: auto;
-    padding: 10px;
-    font-family: monospace;
-    font-size: 12px;
-    color: #55ff55;
-    border-radius: 8px;
-}
-
-/* FLOATING GRID (MINECRAFT WORLD FEEL) */
-.grid {
-    position: fixed;
-    width: 200%;
-    height: 200%;
-    background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    animation: moveGrid 20s linear infinite;
-    z-index: -1;
-}
-
-@keyframes moveGrid {
-    from { transform: translate(0,0); }
-    to { transform: translate(-40px,-40px); }
+/* FOOTER */
+footer {
+    text-align: center;
+    padding: 40px;
+    color: #666;
 }
 </style>
 
@@ -116,39 +138,50 @@ button:hover {
 
 <body>
 
-<div class="grid"></div>
+<div class="bg"></div>
 
 <header>
-    <h1>⛏ EPICCRAFT NETWORK</h1>
-    <div class="ip">play.epiccraft.com</div>
-
-    <div id="badge" class="badge offline">OFFLINE</div>
+    <h1>MINECRAFT NETWORK</h1>
+    <div class="sub">Survival • PvP • Events • Economy</div>
 </header>
 
-<!-- STATUS -->
-<section>
+<!-- SERVER HUB -->
+<div class="grid">
+
     <div class="card">
-        <h2>Server Status</h2>
-        Players: <span id="players">-</span>
+        <div class="title">Survival</div>
+        <div class="desc">Classic survival world with claims & economy</div>
+        <div id="badge" class="badge offline">OFFLINE</div>
     </div>
-</section>
 
-<!-- CONTROL CORE -->
-<section>
     <div class="card">
-        <h2>Control Core</h2>
-
-        <button class="green" onclick="start()">START</button>
-        <button class="red" onclick="stop()">STOP</button>
-        <button class="blue" onclick="restart()">RESTART</button>
-
-        <h3>Live Console</h3>
-        <div class="console" id="log"></div>
+        <div class="title">Connection</div>
+        <div class="desc">play.yourserver.com</div>
+        <button class="green" onclick="copyIP()">Copy IP</button>
     </div>
-</section>
 
-<footer style="text-align:center; padding:30px; color:#666;">
-    EpicCraft Survival Network
+    <div class="card">
+        <div class="title">Players</div>
+        <div class="desc">Live count</div>
+        <div id="players">-</div>
+    </div>
+
+</div>
+
+<!-- CONTROL PANEL -->
+<div class="panel">
+    <h2>Server Control System</h2>
+
+    <button class="green" onclick="start()">Start</button>
+    <button class="red" onclick="stop()">Stop</button>
+    <button class="blue" onclick="restart()">Restart</button>
+
+    <h3>Live Console</h3>
+    <div class="console" id="log"></div>
+</div>
+
+<footer>
+    Minecraft Network Frontend System
 </footer>
 
 <script>
@@ -168,22 +201,28 @@ function log(t){
     document.getElementById("log").innerHTML += "» " + t + "<br>";
 }
 
-/* SAFE ACTION WRAPPER */
+/* COPY IP */
+function copyIP(){
+    navigator.clipboard.writeText("play.yourserver.com");
+}
+
+/* SAFE REQUEST */
 function send(path, msg){
     if(busy) return;
-
     busy = true;
+
     log(msg);
 
-    fetch(API + path, { method: "POST", headers })
-    .catch(() => log("⚠ Connection error"))
-    .finally(() => setTimeout(() => busy = false, 2000));
+    fetch(API + path, {
+        method: "POST",
+        headers
+    }).finally(() => busy = false);
 }
 
 /* CONTROLS */
-function start(){ send("/start", "🚀 Starting server..."); }
-function stop(){ send("/stop", "⛔ Stopping server..."); }
-function restart(){ send("/restart", "🔄 Restarting server..."); }
+function start(){ send("/start", "Starting server..."); }
+function stop(){ send("/stop", "Stopping server..."); }
+function restart(){ send("/restart", "Restarting server..."); }
 
 /* STATUS */
 async function update(){
