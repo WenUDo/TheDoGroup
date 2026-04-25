@@ -1,153 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Server</title>
+    <meta charset="UTF-8">
+    <title>Minecraft Control Panel</title>
 
-<style>
-body {
-    margin: 0;
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(180deg, #020617, #0f172a);
-    color: white;
-}
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: white;
+            text-align: center;
+        }
 
-header {
-    text-align: center;
-    padding: 80px 20px;
-}
+        .container {
+            margin-top: 80px;
+        }
 
-h1 {
-    font-size: 60px;
-    margin-bottom: 10px;
-}
+        .panel {
+            background: #1e293b;
+            width: 350px;
+            margin: 20px auto;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
 
-.subtitle {
-    color: #94a3b8;
-    font-size: 18px;
-}
+        button {
+            width: 80%;
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            background: #3b82f6;
+            color: white;
+            transition: 0.2s;
+        }
 
-.ip-box {
-    margin-top: 25px;
-    display: inline-block;
-    background: #22c55e;
-    padding: 12px 25px;
-    border-radius: 12px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.2s;
-}
+        button:hover {
+            background: #2563eb;
+        }
 
-.ip-box:hover {
-    background: #16a34a;
-}
+        .danger {
+            background: #ef4444;
+        }
 
-.section {
-    padding: 40px 20px;
-    text-align: center;
-}
+        .danger:hover {
+            background: #dc2626;
+        }
 
-.cards {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 20px;
-}
-
-.card {
-    background: #1e293b;
-    padding: 25px;
-    border-radius: 18px;
-    width: 280px;
-    box-shadow: 0 0 30px rgba(0,0,0,0.5);
-    transition: 0.2s;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-}
-
-.button {
-    display: inline-block;
-    margin-top: 15px;
-    padding: 12px 20px;
-    background: #5865F2;
-    color: white;
-    text-decoration: none;
-    border-radius: 10px;
-}
-
-footer {
-    text-align: center;
-    padding: 30px;
-    color: #64748b;
-}
-
-/* Mobile fix */
-@media (max-width: 600px) {
-    h1 {
-        font-size: 40px;
-    }
-}
-</style>
+        .status {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #94a3b8;
+        }
+    </style>
 </head>
 
 <body>
 
-<header>
-    <h1>🔥 My Server</h1>
-    <p class="subtitle">The cleanest Minecraft experience</p>
+<div class="container">
 
-    <div class="ip-box" onclick="copyIP()">
-        play.yourserver.com (Click to copy)
-    </div>
-</header>
+    <h1>🎮 Minecraft Control Panel</h1>
 
-<section class="section">
-    <div class="cards">
+    <div class="panel">
 
-        <div class="card">
-            <h2>🌍 Gameplay</h2>
-            <p>Survival, PvP, events, and custom features.</p>
-        </div>
+        <button onclick="send('/survival')">🟢 Survival Mode</button>
 
-        <div class="card">
-            <h2>📜 Rules</h2>
-            <p>No cheating. No toxicity. Respect everyone.</p>
-        </div>
+        <button onclick="send('/hardcore')">☠️ Hardcore Mode</button>
 
-        <div class="card">
-            <h2>💬 Discord</h2>
-            <p>Join the community and stay updated.</p>
-            <a href="#" class="button">Join</a>
-        </div>
+        <button class="danger" onclick="send('/stop')">🔴 Stop Server</button>
 
-        <div class="card">
-            <h2>🛒 Store</h2>
-            <p>Support the server and unlock perks.</p>
-            <a href="#" class="button">Shop</a>
+        <div class="status" id="status">
+            Ready to send commands
         </div>
 
     </div>
-</section>
 
-<footer>
-    © 2026 My Server
-</footer>
-
-<script>
-function copyIP() {
-    navigator.clipboard.writeText("play.yourserver.com");
-    alert("Server IP copied!");
-}
-</script>
-<button onclick="send('/survival')">Survival</button>
+</div>
 
 <script>
 function send(endpoint){
     fetch("http://localhost:3000" + endpoint, {
         method: "POST"
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("status").innerText =
+            "Command sent: " + endpoint;
+    })
+    .catch(err => {
+        document.getElementById("status").innerText =
+            "Error sending command";
     });
 }
 </script>
