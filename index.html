@@ -1,104 +1,147 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Minecraft Server</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Server</title>
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #020617, #0f172a);
-            color: white;
-            text-align: center;
-        }
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(180deg, #020617, #0f172a);
+    color: white;
+}
 
-        header {
-            padding: 60px 20px;
-        }
+header {
+    text-align: center;
+    padding: 80px 20px;
+}
 
-        h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
-        }
+h1 {
+    font-size: 60px;
+    margin-bottom: 10px;
+}
 
-        .ip {
-            background: #22c55e;
-            display: inline-block;
-            padding: 10px 20px;
-            border-radius: 10px;
-            margin-top: 10px;
-            font-weight: bold;
-        }
+.subtitle {
+    color: #94a3b8;
+    font-size: 18px;
+}
 
-        .container {
-            padding: 20px;
-        }
+.ip-box {
+    margin-top: 25px;
+    display: inline-block;
+    background: #22c55e;
+    padding: 12px 25px;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
 
-        .card {
-            background: #1e293b;
-            margin: 20px auto;
-            padding: 25px;
-            border-radius: 15px;
-            max-width: 500px;
-            box-shadow: 0 0 25px rgba(0,0,0,0.6);
-        }
+.ip-box:hover {
+    background: #16a34a;
+}
 
-        .btn {
-            display: inline-block;
-            margin-top: 15px;
-            padding: 12px 25px;
-            background: #5865F2;
-            color: white;
-            text-decoration: none;
-            border-radius: 10px;
-        }
+.section {
+    padding: 40px 20px;
+    text-align: center;
+}
 
-        footer {
-            margin-top: 40px;
-            padding: 20px;
-            color: #94a3b8;
-        }
-    </style>
+.cards {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.card {
+    background: #1e293b;
+    padding: 25px;
+    border-radius: 18px;
+    width: 280px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    transition: 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.button {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 12px 20px;
+    background: #5865F2;
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+}
+
+footer {
+    text-align: center;
+    padding: 30px;
+    color: #64748b;
+}
+
+/* Mobile fix */
+@media (max-width: 600px) {
+    h1 {
+        font-size: 40px;
+    }
+}
+</style>
 </head>
+
 <body>
 
 <header>
-    <h1>🔥 My Minecraft Server</h1>
-    <p>Join now and start playing!</p>
-    <div class="ip">play.yourserver.com</div>
+    <h1>🔥 My Server</h1>
+    <p class="subtitle">The cleanest Minecraft experience</p>
+
+    <div class="ip-box" onclick="copyIP()">
+        play.yourserver.com (Click to copy)
+    </div>
 </header>
 
-<div class="container">
+<section class="section">
+    <div class="cards">
 
-    <div class="card">
-        <h2>🌍 About</h2>
-        <p>Survival, PvP, events, and more. Built for fun and competition.</p>
+        <div class="card">
+            <h2>🌍 Gameplay</h2>
+            <p>Survival, PvP, events, and custom features.</p>
+        </div>
+
+        <div class="card">
+            <h2>📜 Rules</h2>
+            <p>No cheating. No toxicity. Respect everyone.</p>
+        </div>
+
+        <div class="card">
+            <h2>💬 Discord</h2>
+            <p>Join the community and stay updated.</p>
+            <a href="#" class="button">Join</a>
+        </div>
+
+        <div class="card">
+            <h2>🛒 Store</h2>
+            <p>Support the server and unlock perks.</p>
+            <a href="#" class="button">Shop</a>
+        </div>
+
     </div>
-
-    <div class="card">
-        <h2>📜 Rules</h2>
-        <p>No hacking, no toxicity, respect all players.</p>
-    </div>
-
-    <div class="card">
-        <h2>💬 Discord</h2>
-        <p>Join our community</p>
-        <a href="#" class="btn">Join Discord</a>
-    </div>
-
-    <div class="card">
-        <h2>🛒 Store</h2>
-        <p>Support the server and unlock perks</p>
-        <a href="#" class="btn">Visit Store</a>
-    </div>
-
-</div>
+</section>
 
 <footer>
-    <p>© 2026 My Minecraft Server</p>
+    © 2026 My Server
 </footer>
+
+<script>
+function copyIP() {
+    navigator.clipboard.writeText("play.yourserver.com");
+    alert("Server IP copied!");
+}
+</script>
 
 </body>
 </html>
