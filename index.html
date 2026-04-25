@@ -1,64 +1,221 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Minecraft Control Panel</title>
+<title>Minecraft Nexus Panel</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
 
 <style>
-body {
+* {
     margin: 0;
-    font-family: Arial;
-    background: #0f172a;
-    color: white;
-    text-align: center;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
 }
 
-.panel {
-    max-width: 520px;
-    margin: 40px auto;
-    background: #111827;
+body {
+    background: radial-gradient(circle at top, #0b1220, #05070f);
+    color: white;
+    overflow-x: hidden;
+}
+
+/* animated glow background */
+.glow {
+    position: fixed;
+    width: 600px;
+    height: 600px;
+    background: #3b82f6;
+    filter: blur(180px);
+    opacity: 0.15;
+    top: -200px;
+    left: -200px;
+    z-index: 0;
+}
+
+/* layout */
+.container {
+    display: flex;
+    height: 100vh;
+    position: relative;
+    z-index: 1;
+}
+
+/* sidebar */
+.sidebar {
+    width: 260px;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(20px);
     padding: 20px;
-    border-radius: 12px;
+    border-right: 1px solid rgba(255,255,255,0.05);
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: 800;
+    color: #60a5fa;
+    margin-bottom: 30px;
+}
+
+.nav {
+    margin-top: 20px;
+}
+
+.nav-item {
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.03);
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.nav-item:hover {
+    background: rgba(59,130,246,0.2);
+}
+
+/* main */
+.main {
+    flex: 1;
+    padding: 30px;
+}
+
+/* cards */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.title {
+    font-size: 14px;
+    color: #94a3b8;
+}
+
+.value {
+    font-size: 22px;
+    font-weight: 700;
+    margin-top: 5px;
+}
+
+/* buttons */
+.buttons {
+    margin-top: 25px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 button {
-    width: 90%;
-    padding: 14px;
-    margin: 8px;
+    flex: 1;
+    min-width: 150px;
+    padding: 12px;
+    border-radius: 12px;
     border: none;
-    border-radius: 10px;
     cursor: pointer;
     color: white;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+button:hover {
+    transform: translateY(-2px);
 }
 
 .green { background: #22c55e; }
-.yellow { background: #eab308; }
 .red { background: #ef4444; }
+.yellow { background: #eab308; }
 .blue { background: #3b82f6; }
 
+/* console */
+.console {
+    margin-top: 20px;
+    height: 220px;
+    background: black;
+    border-radius: 12px;
+    padding: 10px;
+    font-family: monospace;
+    font-size: 12px;
+    overflow-y: auto;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* status */
 .status {
     margin-top: 10px;
     color: #94a3b8;
 }
 </style>
+
 </head>
 
 <body>
 
-<h1>🔥 Minecraft Control Panel</h1>
+<div class="glow"></div>
 
-<div class="panel">
+<div class="container">
 
-    <!-- SERVER CONTROL -->
-    <button class="blue" onclick="startServer()">▶ Start Server</button>
-    <button class="red" onclick="stopServer()">⛔ Stop Server</button>
-    <button class="blue" onclick="restartServer()">🔄 Restart Server</button>
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <div class="logo">⚡ NEXUS PANEL</div>
 
-    <!-- GAME CONTROLS -->
-    <button class="green" onclick="send('gamemode survival')">Survival</button>
-    <button class="yellow" onclick="send('difficulty hard')">Hardcore</button>
+    <div class="nav">
+        <div class="nav-item">Dashboard</div>
+        <div class="nav-item">Controls</div>
+        <div class="nav-item">Console</div>
+        <div class="nav-item">Settings</div>
+    </div>
+</div>
 
-    <div class="status" id="status">Loading...</div>
+<!-- MAIN -->
+<div class="main">
+
+    <h2>🔥 Server Dashboard</h2>
+
+    <!-- STATS -->
+    <div class="grid">
+
+        <div class="card">
+            <div class="title">Status</div>
+            <div class="value" id="status">Loading...</div>
+        </div>
+
+        <div class="card">
+            <div class="title">Players</div>
+            <div class="value" id="players">-</div>
+        </div>
+
+        <div class="card">
+            <div class="title">Mode</div>
+            <div class="value">Survival</div>
+        </div>
+
+    </div>
+
+    <!-- BUTTONS -->
+    <div class="buttons">
+
+        <button class="blue" onclick="startServer()">▶ Start</button>
+        <button class="red" onclick="stopServer()">⛔ Stop</button>
+        <button class="yellow" onclick="restartServer()">🔄 Restart</button>
+
+        <button class="green" onclick="send('gamemode survival')">Survival</button>
+        <button class="yellow" onclick="send('difficulty hard')">Hardcore</button>
+
+    </div>
+
+    <!-- CONSOLE -->
+    <div class="console" id="console"></div>
+
+</div>
 
 </div>
 
@@ -67,66 +224,68 @@ button {
 const API = "https://flashy-stardust-endless.ngrok-free.dev";
 const KEY = "my-secret-key-123";
 
-// COMMANDS
-function send(command){
+function log(text){
+    document.getElementById("console").innerHTML += text + "<br>";
+}
+
+// send command
+function send(cmd){
     fetch(API + "/command", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
             "x-api-key": KEY
         },
-        body: JSON.stringify({ command })
+        body: JSON.stringify({ command: cmd })
     });
 
-    document.getElementById("status").innerText =
-        "Sent: " + command;
+    log("▶ " + cmd);
 }
 
-// START
+// start
 function startServer(){
     fetch(API + "/start", {
         method: "POST",
         headers: { "x-api-key": KEY }
     });
 
-    document.getElementById("status").innerText =
-        "Starting server...";
+    log("🚀 Starting server...");
 }
 
-// STOP
+// stop
 function stopServer(){
     fetch(API + "/stop", {
         method: "POST",
         headers: { "x-api-key": KEY }
     });
 
-    document.getElementById("status").innerText =
-        "Stopping server...";
+    log("⛔ Stopping server...");
 }
 
-// RESTART
+// restart
 function restartServer(){
     fetch(API + "/restart", {
         method: "POST",
         headers: { "x-api-key": KEY }
     });
 
-    document.getElementById("status").innerText =
-        "Restarting server...";
+    log("🔄 Restarting server...");
 }
 
-// STATUS LOOP
+// live status
 async function update(){
     try {
         const res = await fetch(API + "/status");
         const data = await res.json();
 
         document.getElementById("status").innerText =
-            data.online ? "🟢 Online | " + data.players : "🔴 Offline";
+            data.online ? "ONLINE" : "OFFLINE";
+
+        document.getElementById("players").innerText =
+            data.players || "-";
 
     } catch {
-        document.getElementById("status").innerText =
-            "⚠️ Connection error";
+        document.getElementById("status").innerText = "ERROR";
     }
 }
 
