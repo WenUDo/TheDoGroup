@@ -2,54 +2,98 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>MAX PANEL</title>
+<title>Minecraft Panel</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
 body {
     margin: 0;
-    font-family: Arial;
-    background: #050816;
+    font-family: Inter;
+    background: #0b0f19;
     color: white;
 }
 
-.header {
-    padding: 20px;
+/* top bar */
+.topbar {
+    padding: 20px 30px;
     background: #0f172a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    padding: 20px;
+.brand {
+    font-weight: 700;
+    color: #60a5fa;
 }
 
+/* layout */
+.wrapper {
+    padding: 30px;
+    max-width: 900px;
+    margin: auto;
+}
+
+/* status card */
 .card {
     background: #111827;
+    border: 1px solid #1f2937;
+    border-radius: 14px;
     padding: 20px;
-    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+/* status */
+.status {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+/* buttons */
+.buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
 }
 
 button {
+    flex: 1;
     padding: 12px;
-    margin: 5px;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
+    font-weight: 600;
     color: white;
 }
 
-.green { background: #22c55e; }
-.red { background: #ef4444; }
-.blue { background: #3b82f6; }
+.start { background: #22c55e; }
+.stop { background: #ef4444; }
+.restart { background: #3b82f6; }
 
+button:hover {
+    opacity: 0.85;
+}
+
+/* info row */
+.info {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    color: #9ca3af;
+    font-size: 14px;
+}
+
+/* console */
 .console {
-    height: 200px;
-    background: black;
-    padding: 10px;
+    background: #000;
+    border-radius: 12px;
+    padding: 12px;
+    height: 180px;
     overflow-y: auto;
     font-family: monospace;
     font-size: 12px;
+    color: #22c55e;
 }
 </style>
 
@@ -57,29 +101,34 @@ button {
 
 <body>
 
-<div class="header">
-    <h2>🔥 MAX LEVEL SERVER PANEL</h2>
-    <div id="status">Loading...</div>
+<div class="topbar">
+    <div class="brand">⚡ Minecraft Panel</div>
+    <div id="state">Loading...</div>
 </div>
 
-<div class="container">
+<div class="wrapper">
 
-<div class="card">
-    <h3>Controls</h3>
+    <!-- STATUS -->
+    <div class="card">
+        <div class="status">Server Status: <span id="status">...</span></div>
 
-    <button class="blue" onclick="start()">Start</button>
-    <button class="red" onclick="stop()">Stop</button>
-    <button class="blue" onclick="restart()">Restart</button>
+        <div class="info">
+            <div>Players: <span id="players">-</span></div>
+            <div>Panel: Online</div>
+        </div>
 
-    <button class="green" onclick="cmd('gamemode survival')">Survival</button>
+        <div class="buttons">
+            <button class="start" onclick="start()">Start</button>
+            <button class="stop" onclick="stop()">Stop</button>
+            <button class="restart" onclick="restart()">Restart</button>
+        </div>
+    </div>
 
-    <div id="players">Players: -</div>
-</div>
-
-<div class="card">
-    <h3>Console</h3>
-    <div class="console" id="log"></div>
-</div>
+    <!-- CONSOLE -->
+    <div class="card">
+        <div style="margin-bottom:10px; color:#9ca3af;">Console</div>
+        <div class="console" id="log"></div>
+    </div>
 
 </div>
 
@@ -94,41 +143,32 @@ function log(t){
 
 function start(){
     fetch(API+"/start",{headers:{"x-api-key":KEY}});
-    log("🚀 start");
+    log("> start");
 }
 
 function stop(){
     fetch(API+"/stop",{headers:{"x-api-key":KEY}});
-    log("⛔ stop");
+    log("> stop");
 }
 
 function restart(){
     fetch(API+"/restart",{headers:{"x-api-key":KEY}});
-    log("🔄 restart");
-}
-
-function cmd(c){
-    fetch(API+"/command",{
-        method:"POST",
-        headers:{
-            "Content-Type":"application/json",
-            "x-api-key":KEY
-        },
-        body:JSON.stringify({command:c})
-    });
-
-    log("▶ "+c);
+    log("> restart");
 }
 
 async function update(){
-    const r = await fetch(API+"/status");
-    const d = await r.json();
+    try {
+        const res = await fetch(API+"/status");
+        const data = await res.json();
 
-    document.getElementById("status").innerText =
-        "STATE: " + d.state;
+        document.getElementById("status").innerText =
+            data.state;
 
-    document.getElementById("players").innerText =
-        "Players: " + d.players;
+        document.getElementById("players").innerText =
+            data.players;
+    } catch {
+        document.getElementById("status").innerText = "offline";
+    }
 }
 
 setInterval(update, 3000);
