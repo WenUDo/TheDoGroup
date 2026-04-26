@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Minecraft Hosting Panel</title>
+<title>Hosting Panel</title>
+
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 
 <style>
 body{
@@ -21,8 +23,8 @@ padding:10px;
 
 .sidebar button{
 width:100%;
-margin:5px 0;
 padding:10px;
+margin:5px 0;
 background:#111827;
 border:none;
 color:white;
@@ -30,10 +32,7 @@ cursor:pointer;
 border-radius:6px;
 }
 
-.main{
-flex:1;
-padding:20px;
-}
+.main{flex:1;padding:20px;}
 
 .card{
 background:#111827;
@@ -62,19 +61,12 @@ padding:10px;
 font-family:monospace;
 color:#55ff55;
 }
-
-.grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
-}
 </style>
 </head>
 
 <body>
 
 <div class="sidebar">
-<h3>Control Panel</h3>
 <button onclick="show('dash')">Dashboard</button>
 <button onclick="show('ops')">Operator</button>
 <button onclick="show('players')">Players</button>
@@ -86,12 +78,7 @@ gap:10px;
 <div id="dash">
 <div class="card">
 <h2>Status: <span id="status">...</span></h2>
-
-<div class="grid">
-<div>RAM: <span id="ram">-</span> MB</div>
-<div>Free: <span id="free">-</span> MB</div>
-</div>
-
+<p>RAM: <span id="ram">-</span> MB</p>
 <button class="green" onclick="start()">Start</button>
 <button class="red" onclick="stop()">Stop</button>
 <button class="blue" onclick="restart()">Restart</button>
@@ -100,14 +87,11 @@ gap:10px;
 
 <div id="ops" style="display:none">
 <div class="card">
-<h3>Operator Panel</h3>
-
+<h3>Operator</h3>
 <button onclick="cmd('gamemode creative @a')">Creative</button>
 <button onclick="cmd('gamemode survival @a')">Survival</button>
 <button onclick="cmd('time set day')">Day</button>
-<button onclick="cmd('time set night')">Night</button>
 <button onclick="cmd('weather clear')">Clear</button>
-<button onclick="cmd('weather rain')">Rain</button>
 </div>
 </div>
 
@@ -117,7 +101,7 @@ gap:10px;
 
 <div id="plist"></div>
 
-<input id="pname" placeholder="player name">
+<input id="pname" placeholder="player">
 <button class="red" onclick="kick()">Kick</button>
 <button class="red" onclick="ban()">Ban</button>
 </div>
@@ -137,6 +121,12 @@ gap:10px;
 const API="https://flashy-stardust-endless.ngrok-free.dev";
 const KEY="my-secret-key-123";
 
+const socket = io(API);
+
+socket.on("log",(data)=>{
+document.getElementById("log").innerHTML += data + "<br>";
+});
+
 function show(id){
 document.querySelectorAll('.main > div').forEach(d=>d.style.display='none');
 document.getElementById(id).style.display='block';
@@ -149,10 +139,7 @@ function restart(){fetch(API+"/restart",{method:"POST",headers:{"x-api-key":KEY}
 function cmd(c){
 fetch(API+"/command",{
 method:"POST",
-headers:{
-"Content-Type":"application/json",
-"x-api-key":KEY
-},
+headers:{"Content-Type":"application/json","x-api-key":KEY},
 body:JSON.stringify({command:c})
 })
 }
@@ -160,10 +147,7 @@ body:JSON.stringify({command:c})
 function kick(){
 fetch(API+"/kick",{
 method:"POST",
-headers:{
-"Content-Type":"application/json",
-"x-api-key":KEY
-},
+headers:{"Content-Type":"application/json","x-api-key":KEY},
 body:JSON.stringify({player:document.getElementById("pname").value})
 })
 }
@@ -171,10 +155,7 @@ body:JSON.stringify({player:document.getElementById("pname").value})
 function ban(){
 fetch(API+"/ban",{
 method:"POST",
-headers:{
-"Content-Type":"application/json",
-"x-api-key":KEY
-},
+headers:{"Content-Type":"application/json","x-api-key":KEY},
 body:JSON.stringify({player:document.getElementById("pname").value})
 })
 }
@@ -185,14 +166,7 @@ const s=await fetch(API+"/status").then(r=>r.json());
 document.getElementById("status").innerText=s.state;
 
 const st=await fetch(API+"/stats").then(r=>r.json());
-document.getElementById("ram").innerText=st.ramUsedMB;
-document.getElementById("free").innerText=st.freeRAM;
-
-const p=await fetch(API+"/players").then(r=>r.json());
-document.getElementById("plist").innerText=p.raw;
-
-const c=await fetch(API+"/console").then(r=>r.json());
-document.getElementById("log").innerHTML=c.logs.join("<br>");
+document.getElementById("ram").innerText=st.ram;
 }
 
 setInterval(update,3000);
