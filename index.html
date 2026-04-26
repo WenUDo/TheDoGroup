@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Pro Minecraft Panel</title>
+<title>Minecraft Hosting Panel</title>
 
 <style>
 body{
 margin:0;
 font-family:Arial;
-background:#0b1220;
+background:#0a0f1c;
 color:white;
 display:flex;
 }
 
 .sidebar{
-width:200px;
+width:220px;
 background:#020617;
-padding:10px;
 height:100vh;
+padding:10px;
 }
 
 .sidebar button{
@@ -24,9 +24,10 @@ width:100%;
 margin:5px 0;
 padding:10px;
 background:#111827;
-color:white;
 border:none;
+color:white;
 cursor:pointer;
+border-radius:6px;
 }
 
 .main{
@@ -41,8 +42,13 @@ margin-bottom:15px;
 border-radius:10px;
 }
 
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+}
+
 button{
-margin:5px;
 padding:8px;
 border:none;
 border-radius:6px;
@@ -55,7 +61,7 @@ cursor:pointer;
 
 .console{
 background:black;
-height:200px;
+height:250px;
 overflow:auto;
 padding:10px;
 font-family:monospace;
@@ -67,6 +73,7 @@ color:#55ff55;
 <body>
 
 <div class="sidebar">
+<h3>Panel</h3>
 <button onclick="show('dash')">Dashboard</button>
 <button onclick="show('ops')">Operator</button>
 <button onclick="show('players')">Players</button>
@@ -77,8 +84,12 @@ color:#55ff55;
 
 <div id="dash">
 <div class="card">
-<h3>Status: <span id="status">...</span></h3>
-<p>RAM: <span id="ram">-</span> MB</p>
+<h2>Status: <span id="status">...</span></h2>
+<div class="grid">
+<div>RAM Used: <span id="ram">-</span> MB</div>
+<div>System Free: <span id="free">-</span> MB</div>
+</div>
+
 <button class="green" onclick="start()">Start</button>
 <button class="red" onclick="stop()">Stop</button>
 <button class="blue" onclick="restart()">Restart</button>
@@ -87,7 +98,7 @@ color:#55ff55;
 
 <div id="ops" style="display:none">
 <div class="card">
-<h3>Operator</h3>
+<h3>Operator Controls</h3>
 <button onclick="cmd('gamemode creative @a')">Creative</button>
 <button onclick="cmd('gamemode survival @a')">Survival</button>
 <button onclick="cmd('time set day')">Day</button>
@@ -99,7 +110,8 @@ color:#55ff55;
 <div class="card">
 <h3>Players</h3>
 <div id="plist"></div>
-<input id="pname" placeholder="player">
+
+<input id="pname" placeholder="player name">
 <button class="red" onclick="kick()">Kick</button>
 <button class="red" onclick="ban()">Ban</button>
 </div>
@@ -156,11 +168,12 @@ async function update(){
 const s=await fetch(API+"/status").then(r=>r.json());
 document.getElementById("status").innerText=s.state;
 
-const r=await fetch(API+"/ram").then(r=>r.json());
-document.getElementById("ram").innerText=r.heap;
+const stats=await fetch(API+"/stats").then(r=>r.json());
+document.getElementById("ram").innerText=stats.ramUsedMB;
+document.getElementById("free").innerText=stats.freeSystemMB;
 
 const p=await fetch(API+"/players").then(r=>r.json());
-document.getElementById("plist").innerText=p.players;
+document.getElementById("plist").innerText=p.raw;
 
 const c=await fetch(API+"/console").then(r=>r.json());
 document.getElementById("log").innerHTML=c.logs.join("<br>");
