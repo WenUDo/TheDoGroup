@@ -7,7 +7,7 @@
 body{
 margin:0;
 font-family:Arial;
-background:#0a0f1c;
+background:#070b14;
 color:white;
 display:flex;
 }
@@ -42,17 +42,12 @@ margin-bottom:15px;
 border-radius:10px;
 }
 
-.grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
-}
-
 button{
 padding:8px;
 border:none;
 border-radius:6px;
 cursor:pointer;
+margin:4px;
 }
 
 .green{background:#22c55e}
@@ -67,13 +62,19 @@ padding:10px;
 font-family:monospace;
 color:#55ff55;
 }
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+}
 </style>
 </head>
 
 <body>
 
 <div class="sidebar">
-<h3>Panel</h3>
+<h3>Control Panel</h3>
 <button onclick="show('dash')">Dashboard</button>
 <button onclick="show('ops')">Operator</button>
 <button onclick="show('players')">Players</button>
@@ -85,9 +86,10 @@ color:#55ff55;
 <div id="dash">
 <div class="card">
 <h2>Status: <span id="status">...</span></h2>
+
 <div class="grid">
-<div>RAM Used: <span id="ram">-</span> MB</div>
-<div>System Free: <span id="free">-</span> MB</div>
+<div>RAM: <span id="ram">-</span> MB</div>
+<div>Free: <span id="free">-</span> MB</div>
 </div>
 
 <button class="green" onclick="start()">Start</button>
@@ -98,17 +100,21 @@ color:#55ff55;
 
 <div id="ops" style="display:none">
 <div class="card">
-<h3>Operator Controls</h3>
+<h3>Operator Panel</h3>
+
 <button onclick="cmd('gamemode creative @a')">Creative</button>
 <button onclick="cmd('gamemode survival @a')">Survival</button>
 <button onclick="cmd('time set day')">Day</button>
+<button onclick="cmd('time set night')">Night</button>
 <button onclick="cmd('weather clear')">Clear</button>
+<button onclick="cmd('weather rain')">Rain</button>
 </div>
 </div>
 
 <div id="players" style="display:none">
 <div class="card">
 <h3>Players</h3>
+
 <div id="plist"></div>
 
 <input id="pname" placeholder="player name">
@@ -143,7 +149,10 @@ function restart(){fetch(API+"/restart",{method:"POST",headers:{"x-api-key":KEY}
 function cmd(c){
 fetch(API+"/command",{
 method:"POST",
-headers:{"Content-Type":"application/json","x-api-key":KEY},
+headers:{
+"Content-Type":"application/json",
+"x-api-key":KEY
+},
 body:JSON.stringify({command:c})
 })
 }
@@ -151,7 +160,10 @@ body:JSON.stringify({command:c})
 function kick(){
 fetch(API+"/kick",{
 method:"POST",
-headers:{"Content-Type":"application/json","x-api-key":KEY},
+headers:{
+"Content-Type":"application/json",
+"x-api-key":KEY
+},
 body:JSON.stringify({player:document.getElementById("pname").value})
 })
 }
@@ -159,18 +171,22 @@ body:JSON.stringify({player:document.getElementById("pname").value})
 function ban(){
 fetch(API+"/ban",{
 method:"POST",
-headers:{"Content-Type":"application/json","x-api-key":KEY},
+headers:{
+"Content-Type":"application/json",
+"x-api-key":KEY
+},
 body:JSON.stringify({player:document.getElementById("pname").value})
 })
 }
 
 async function update(){
+
 const s=await fetch(API+"/status").then(r=>r.json());
 document.getElementById("status").innerText=s.state;
 
-const stats=await fetch(API+"/stats").then(r=>r.json());
-document.getElementById("ram").innerText=stats.ramUsedMB;
-document.getElementById("free").innerText=stats.freeSystemMB;
+const st=await fetch(API+"/stats").then(r=>r.json());
+document.getElementById("ram").innerText=st.ramUsedMB;
+document.getElementById("free").innerText=st.freeRAM;
 
 const p=await fetch(API+"/players").then(r=>r.json());
 document.getElementById("plist").innerText=p.raw;
