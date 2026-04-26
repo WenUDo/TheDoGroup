@@ -104,4 +104,65 @@ input {
 
 <h2>Quick Actions</h2>
 <button onclick="cmd('kill @e[type=!player]')">Kill All Mobs</button>
-<button onclick="cmd('give @p diamond_sword')">Gi_
+<button onclick="cmd('give @p diamond_sword')">Give Sword</button>
+<button onclick="cmd('give @p diamond 64')">Give Diamonds</button>
+
+<h2>Custom Command</h2>
+<input id="commandInput" placeholder="Enter any command...">
+<button onclick="runCustom()">Run</button>
+
+<h2>Console</h2>
+<div id="log" class="console"></div>
+
+</div>
+
+<script>
+
+const API = "https://flashy-stardust-endless.ngrok-free.dev";
+const KEY = "my-secret-key-123";
+
+const headers = {
+    "Content-Type": "application/json",
+    "x-api-key": KEY
+};
+
+let busy = false;
+
+function log(t){
+    document.getElementById("log").innerHTML += "» " + t + "<br>";
+}
+
+function send(path, msg){
+    log(msg);
+
+    fetch(API + path, {
+        method: "POST",
+        headers
+    }).catch(() => log("Error"));
+}
+
+function cmd(command){
+    log("Running: " + command);
+
+    fetch(API + "/command", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ command })
+    }).catch(() => log("Command failed"));
+}
+
+function runCustom(){
+    const input = document.getElementById("commandInput").value;
+    if(!input) return;
+    cmd(input);
+}
+
+/* SERVER */
+function start(){ send("/start", "Starting server..."); }
+function stop(){ send("/stop", "Stopping server..."); }
+function restart(){ send("/restart", "Restarting server..."); }
+
+</script>
+
+</body>
+</html>
