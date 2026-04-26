@@ -1,76 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Minecraft Hosting Panel</title>
-
+<title>Server Panel v103</title>
 <style>
-body {
-    margin: 0;
-    font-family: Arial;
-    background: #0f0f14;
-    color: white;
-}
-
-header {
-    padding: 20px;
-    text-align: center;
-    font-size: 22px;
-}
-
-.panel {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    padding: 20px;
-}
-
-.box {
-    background: #1a1a22;
-    padding: 15px;
-    border-radius: 10px;
-}
-
-button {
-    margin: 5px;
-    padding: 10px;
-    cursor: pointer;
-}
-
-.green { background: #22c55e; }
-.red { background: #ef4444; }
-.blue { background: #3b82f6; }
-
-.console {
-    height: 200px;
-    overflow: auto;
-    background: black;
-    padding: 10px;
-    font-size: 12px;
-}
-
-.player {
-    display: flex;
-    justify-content: space-between;
-    padding: 5px;
-    background: #222;
-    margin: 3px;
-}
+body{background:#0b0f14;color:white;font-family:Arial;margin:0}
+.panel{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:20px}
+.box{background:#151b22;padding:15px;border-radius:10px}
+button{margin:3px;padding:8px}
+.console{height:200px;overflow:auto;background:black;padding:10px}
+.player{display:flex;justify-content:space-between}
 </style>
 </head>
 
 <body>
 
-<header>🔥 MINECRAFT HOSTING PANEL (V102)</header>
+<h2 style="text-align:center">🔥 SERVERMINER STYLE PANEL v103</h2>
 
 <div class="panel">
 
 <div class="box">
-<h3>Server Controls</h3>
-<button class="green" onclick="start()">Start</button>
-<button class="red" onclick="stop()">Stop</button>
-<button class="blue" onclick="restart()">Restart</button>
-
-<p id="status">Status: ...</p>
+<h3>Controls</h3>
+<button onclick="start()">Start</button>
+<button onclick="stop()">Stop</button>
+<button onclick="restart()">Restart</button>
+<p id="state">...</p>
+<p id="ram"></p>
 </div>
 
 <div class="box">
@@ -85,8 +39,8 @@ button {
 
 <div class="box">
 <h3>Command</h3>
-<input id="cmd" placeholder="command..." />
-<button onclick="sendCmd()">Send</button>
+<input id="cmd">
+<button onclick="send()">Send</button>
 </div>
 
 </div>
@@ -96,42 +50,47 @@ button {
 const API = "https://flashy-stardust-endless.ngrok-free.dev";
 const KEY = "my-secret-key-123";
 
-function api(path, method="GET", body=null){
-    return fetch(API + path, {
-        method,
-        headers: {
-            "Content-Type":"application/json",
-            "x-api-key": KEY
-        },
-        body: body ? JSON.stringify(body) : null
-    });
+// websocket live console
+const ws = new WebSocket(API.replace("https","wss"));
+
+ws.onmessage = (msg)=>{
+    const data = JSON.parse(msg.data);
+
+    if(data.type === "log"){
+        document.getElementById("console").innerHTML += "» "+data.data+"<br>";
+    }
+};
+
+// API helper
+function api(p,m="GET",b=null){
+return fetch(API+p,{
+method:m,
+headers:{
+"Content-Type":"application/json",
+"x-api-key":KEY
+},
+body:b?JSON.stringify(b):null
+});
 }
 
-function start(){ api("/start","POST"); }
-function stop(){ api("/stop","POST"); }
-function restart(){ api("/restart","POST"); }
+function start(){api("/start","POST")}
+function stop(){api("/stop","POST")}
+function restart(){api("/restart","POST")}
 
-function sendCmd(){
-    let c = document.getElementById("cmd").value;
-    api("/command","POST",{command:c});
+function send(){
+api("/command","POST",{command:cmd.value});
 }
 
-async function update(){
+// live update
+setInterval(async()=>{
+let s = await api("/status").then(r=>r.json());
+state.innerText = s.state;
+ram.innerText = "RAM: "+s.ram.used.toFixed(1)+"MB";
 
-    let s = await api("/status").then(r=>r.json());
-    document.getElementById("status").innerText = "Status: " + s.state;
+let p = await api("/players").then(r=>r.json());
+players.innerHTML = p.players;
 
-    let p = await api("/players").then(r=>r.json());
-    document.getElementById("players").innerText = p.players;
-
-    let c = await api("/console").then(r=>r.json());
-    document.getElementById("console").innerHTML =
-        c.logs.map(l=>"» "+l).join("<br>");
-
-}
-
-setInterval(update,2000);
-update();
+},2000);
 
 </script>
 
