@@ -1,126 +1,126 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Minecraft Control Panel</title>
+<meta charset="utf-8">
+<title>Server Panel v104</title>
 
 <style>
-body{margin:0;background:#0b0f14;color:white;font-family:Arial}
-.top{padding:20px;text-align:center}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:20px}
-.box{background:#151b22;padding:15px;border-radius:10px}
-button{margin:3px;padding:8px;cursor:pointer}
-.console{height:220px;overflow:auto;background:black;padding:10px;font-size:12px}
+    body{background:#0b0f14;color:white;font-family:Arial;}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:20px}
+    .box{background:#151b22;padding:15px;border-radius:10px}
+    .console{height:200px;overflow:auto;background:black;padding:10px}
+    button{margin:3px;padding:8px}
 </style>
 </head>
 
 <body>
-
-<div class="top">
-<h2>🔥 MINECRAFT CONTROL PANEL</h2>
-<p id="state">...</p>
-<p>🌐 https://flashy-stardust-endless.ngrok-free.dev</p>
-</div>
+<h2 style="text-align:center">🔥 FULL HOSTING PANEL v104</h2>
 
 <div class="grid">
 
-<div class="box">
-<h3>Server Control</h3>
-<button onclick="start()">Start</button>
-<button onclick="stop()">Stop</button>
-<button onclick="restart()">Restart</button>
-<p id="ram"></p>
-</div>
+  <!-- Controls -->
+  <div class="box"><h3>Controls</h3>
+      <button onclick="start()">Start</button>
+      <button onclick="stop()">Stop</button>
+      <button onclick="restart()">Restart</button>
+      <p id="state"></p>
+      <p id="ram"></p>
+  </div>
 
-<div class="box">
-<h3>Players</h3>
-<div id="players"></div>
-</div>
+  <!-- Players -->
+  <div class="box"><h3>Players</h3><div id="players"></div></div>
 
-<div class="box">
-<h3>Console</h3>
-<div class="console" id="console"></div>
-</div>
+  <!-- Console -->
+  <div class="box"><h3>Console</h3>
+      <div class="console" id="console"></div>
+  </div>
 
-<div class="box">
-<h3>Command</h3>
-<input id="cmd">
-<button onclick="send()">Send</button>
-</div>
+  <!-- Command -->
+  <div class="box"><h3>Command</h3>
+    <input id="cmd">
+    <button onclick="send()">Send</button>
+  </div>
 
-<div class="box">
-<h3>Operator Panel</h3>
+  <!-- File Manager -->
+  <div class="box"><h3>File Manager</h3>
+      <button onclick="files()">Load Files</button>
+      <div id="files"></div>
+  </div>
 
-<input id="player" placeholder="player">
+  <!-- Operator Panel – NEW -->
+  <div class="box"><h3>Operator Panel</h3>
+      <input id="player-name" placeholder="Player name">
+      <button onclick="op()">OP</button>
+      <button onclick="deop()">DEOP</button>
+      <button onclick="kick()">KICK</button>
+      <button onclick="ban()">BAN</button><br>
+      <button onclick="gm('creative')">Creative</button>
+      <button onclick="time()">Time</button>
+      <button onclick="weather()">Weather</button>
+  </div>
 
-<br><br>
-
-<button onclick="op()">OP</button>
-<button onclick="deop()">DEOP</button>
-<button onclick="kick()">KICK</button>
-<button onclick="ban()">BAN</button>
-
-<br><br>
-
-<button onclick="gm('survival')">SURVIVAL</button>
-<button onclick="gm('creative')">CREATIVE</button>
-
-<br><br>
-
-<button onclick="time('day')">DAY</button>
-<button onclick="time('night')">NIGHT</button>
-
-<br><br>
-
-<button onclick="weather('clear')">CLEAR</button>
-<button onclick="weather('rain')">RAIN</button>
-
-</div>
-
-</div>
+</div> <!-- end grid -->
 
 <script>
-
-const API = "https://flashy-stardust-endless.ngrok-free.dev";
-
-function api(p,m="GET",b=null){
-return fetch(API+p,{
-method:m,
-headers:{ "Content-Type":"application/json" },
-body:b?JSON.stringify(b):null
-});
+// ────── Helper to call the API (fetch & send) ─────────────────────────
+async function fetchAPI(method, body = {}) {
+    const r = await fetch(`${API}/${method}`,{
+        method:"POST",
+        headers:{ "Content-Type":"application/json","X-Auth":KEY},
+        body:JSON.stringify(body)
+    }).then(r=>r.json());
+    return r;
 }
 
-function start(){api("/start","POST")}
-function stop(){api("/stop","POST")}
-function restart(){api("/restart","POST")}
+// ────── WebSocket helpers (server state) ───────────────────────────
+wss.onmessage = e=>{
+  const msg = JSON.parse(e.data);
+  if(msg.type==="state") {
+      document.getElementById("state").innerText=msg.state;
+      // RAM line now shows both values in one string
+      document.getElementById("ram").innerText=`RAM: ${msg.ram} MB | CPU: ${msg.cpu} %`;
+  }
+};
 
-function send(){
-api("/command","POST",{command:cmd.value});
+// ────── Controls helpers – start/stop/restart ───────────────────────
+function start(){fetchAPI('start').then(r=>{state=r.ok? 'RUNNING':'STOPPED'; document.getElementById("state").innerText=state;});}
+function stop (){ fetchAPI('stop') .then(r=>{state=r.ok?'STOPPED':'';document.getElementById("state").innerText=state;});}
+function restart(){fetchAPI('restart').then(()=>setTimeout(()=>window.location.reload(),2000));}
+
+// ────── Players list
+function players(){
+    fetch(`${API}/players`).then(r=>{document.getElementById("players").innerHTML=r.players.map(p=>`<div>${p}</div>`).join('');});
 }
 
-function player(){return document.getElementById("player").value;}
+// ────── Console helper
+function send(){fetchAPI('send',{cmd:document.getElementById('cmd').value}).then(()=>refreshConsole());}
+function refreshConsole(){
+    fetch(`${API}/console`).then(r=>{document.getElementById("console").innerHTML+=r.console;});
+}
 
-function op(){api("/op","POST",{player:player()})}
-function deop(){api("/deop","POST",{player:player()})}
-function kick(){api("/kick","POST",{player:player()})}
-function ban(){api("/ban","POST",{player:player()})}
+// ────── File manager
+async function files(){ const r = await fetch(`${API}/files`); document.getElementById("files").innerText=r.files.join(', '); }
 
-function gm(m){api("/gamemode","POST",{mode:m,player:player()})}
-function time(v){api("/time","POST",{value:v})}
-function weather(t){api("/weather","POST",{type:t})}
+// ────── Operator panel helpers – NEW ───────────────────────────
+function playerName(){ return document.getElementById("player-name").value; }
 
-setInterval(async()=>{
+function op()   {fetchAPI('op',    {player:playerName()}).then(()=>{refreshConsole();});}
+function deop() {fetchAPI('deop',  {player:playerName()}).then(()=>{refreshConsole();});}
+function kick(){fetchAPI('kick',  {cmd:'kick '+playerName()}).then(()=>{refreshConsole();});}
+function ban()  {fetchAPI('ban',   {cmd:'ban '+playerName()}).then(()=>{refreshConsole();});}
+function gm(mode){ fetchAPI('gamemode',{mode,player:playerName()}).then(()=>{refreshConsole();}); }
+function time(){ fetchAPI('time' , {value:"creative"}).then(()=>{refreshConsole();}); }
+function weather(){fetchAPI('weather', {type:'sunny'}).then(()=>{refreshConsole();}); }
 
-let s = await api("/status").then(r=>r.json());
-state.innerText = s.state;
-ram.innerText = "RAM: " + s.ram + "MB";
-
-let p = await api("/players").then(r=>r.json());
-players.innerText = p.players;
-
+// ────── Periodic refresher – update UI every 2s ─────────────────────
+setInterval(async ()=>{
+    const r = await fetch(`${API}/status`);
+    document.getElementById("state").innerText=r.state;
+    document.getElementById("ram").innerText=`RAM: ${r.ram} MB | CPU: ${r.cpu}%`;
+    // update players list every 2s
+    const p = await fetch(`${API}/players`).then(r=>r.json());
+    document.getElementById("players").innerHTML=p.players.map(p=>`<div>${p}</div>`).join('');
 },2000);
-
 </script>
-
 </body>
 </html>
