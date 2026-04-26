@@ -1,89 +1,83 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
+<title>MC Panel</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Minecraft Panel</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
 body {
-    margin: 0;
-    font-family: Inter;
-    background: #0b1220;
-    color: white;
-    display: flex;
+    margin:0;
+    font-family: Arial;
+    background:#0b1220;
+    color:white;
+    display:flex;
 }
 
 /* SIDEBAR */
 .sidebar {
-    width: 220px;
-    background: #020617;
-    height: 100vh;
-    padding: 20px;
+    width:220px;
+    background:#020617;
+    padding:15px;
 }
 
 .sidebar h2 {
-    font-size: 16px;
-    margin-bottom: 20px;
+    margin-bottom:20px;
 }
 
 .sidebar button {
-    width: 100%;
-    margin: 6px 0;
-    padding: 10px;
-    background: #111827;
-    border: none;
-    color: white;
-    cursor: pointer;
-    border-radius: 6px;
+    width:100%;
+    padding:10px;
+    margin:5px 0;
+    background:#111827;
+    border:none;
+    color:white;
+    border-radius:6px;
+    cursor:pointer;
 }
 
 /* MAIN */
 .main {
-    flex: 1;
-    padding: 20px;
+    flex:1;
+    padding:20px;
 }
 
-/* CARDS */
 .card {
-    background: #111827;
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 15px;
+    background:#111827;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:15px;
 }
 
+/* BUTTONS */
 button {
-    padding: 8px 12px;
-    margin: 4px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
+    padding:8px 12px;
+    margin:5px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
 }
 
-.green { background: #22c55e; }
-.red { background: #ef4444; }
-.blue { background: #3b82f6; }
-.gray { background: #374151; }
+.green { background:#22c55e; color:black; }
+.red { background:#ef4444; }
+.blue { background:#3b82f6; }
+.gray { background:#374151; }
 
 /* CONSOLE */
 .console {
-    background: black;
-    height: 200px;
-    overflow-y: auto;
-    padding: 10px;
-    font-family: monospace;
-    color: #55ff55;
+    background:black;
+    height:220px;
+    overflow:auto;
+    padding:10px;
+    font-family:monospace;
+    color:#55ff55;
 }
 
 /* INPUT */
 input {
-    padding: 10px;
-    width: 70%;
-    border-radius: 6px;
-    border: none;
+    padding:10px;
+    width:70%;
+    border:none;
+    border-radius:6px;
 }
 </style>
 </head>
@@ -93,19 +87,20 @@ input {
 <!-- SIDEBAR -->
 <div class="sidebar">
     <h2>MC PANEL</h2>
-    <button onclick="show('dashboard')">Dashboard</button>
+    <button onclick="show('dash')">Dashboard</button>
+    <button onclick="show('players')">Players</button>
     <button onclick="show('console')">Console</button>
-    <button onclick="show('operators')">Operator</button>
+    <button onclick="show('ops')">Operator</button>
 </div>
 
 <!-- MAIN -->
 <div class="main">
 
 <!-- DASHBOARD -->
-<div id="dashboard" class="page">
+<div id="dash">
     <div class="card">
-        <h3>Status: <span id="status">OFFLINE</span></h3>
-        <p>Players: <span id="players">-</span></p>
+        <h3>Status: <span id="status">...</span></h3>
+        <p>Players: <span id="playerCount">-</span></p>
 
         <button class="green" onclick="start()">Start</button>
         <button class="red" onclick="stop()">Stop</button>
@@ -113,18 +108,27 @@ input {
     </div>
 </div>
 
-<!-- CONSOLE -->
-<div id="console" class="page" style="display:none;">
+<!-- PLAYERS -->
+<div id="players" style="display:none">
     <div class="card">
-        <div class="console" id="log"></div>
+        <h2>Players</h2>
+        <div id="playerList">Loading...</div>
+    </div>
+</div>
+
+<!-- CONSOLE -->
+<div id="console" style="display:none">
+    <div class="card">
+        <h2>Console</h2>
+        <div id="log" class="console"></div>
 
         <input id="cmdInput" placeholder="Type command...">
         <button onclick="runCmd()">Send</button>
     </div>
 </div>
 
-<!-- OPERATORS -->
-<div id="operators" class="page" style="display:none;">
+<!-- OPERATOR -->
+<div id="ops" style="display:none">
 
     <div class="card">
         <h3>Gamemode</h3>
@@ -161,64 +165,72 @@ input {
 const API = "https://flashy-stardust-endless.ngrok-free.dev";
 const KEY = "my-secret-key-123";
 
-const headers = {
-    "Content-Type": "application/json",
-    "x-api-key": KEY
-};
-
-/* NAV */
+/* NAVIGATION */
 function show(page){
-    document.querySelectorAll(".page").forEach(p => p.style.display="none");
+    document.querySelectorAll('.main > div').forEach(d => d.style.display="none");
     document.getElementById(page).style.display="block";
 }
 
-/* LOG */
-function log(t){
-    document.getElementById("log").innerHTML += "» " + t + "<br>";
-}
-
-/* SERVER */
+/* SERVER CONTROL */
 function send(path, msg){
     log(msg);
-    fetch(API + path, { method:"POST", headers });
+
+    fetch(API + path, {
+        method: "POST",
+        headers: { "x-api-key": KEY }
+    }).catch(() => log("❌ Connection failed"));
 }
 
-function start(){ send("/start","Starting server"); }
-function stop(){ send("/stop","Stopping server"); }
-function restart(){ send("/restart","Restarting server"); }
+function start(){ send("/start","Starting server..."); }
+function stop(){ send("/stop","Stopping server..."); }
+function restart(){ send("/restart","Restarting server..."); }
 
-/* COMMAND */
+/* COMMAND SYSTEM */
 function cmd(command){
     log("Running: " + command);
 
     fetch(API + "/command", {
-        method:"POST",
-        headers,
+        method: "POST",
+        headers: {
+            "Content-Type":"application/json",
+            "x-api-key": KEY
+        },
         body: JSON.stringify({ command })
-    });
+    }).catch(() => log("❌ Command failed"));
 }
 
 function runCmd(){
-    const val = document.getElementById("cmdInput").value;
-    if(!val) return;
-    cmd(val);
+    const input = document.getElementById("cmdInput").value;
+    if(!input) return;
+    cmd(input);
 }
 
-/* STATUS */
+/* LOG */
+function log(t){
+    const el = document.getElementById("log");
+    el.innerHTML += "» " + t + "<br>";
+    el.scrollTop = el.scrollHeight;
+}
+
+/* LIVE UPDATES */
 async function update(){
     try{
-        const res = await fetch(API + "/status");
-        const data = await res.json();
+        const status = await fetch(API + "/status").then(r=>r.json());
+        document.getElementById("status").innerText = status.state;
 
-        document.getElementById("status").innerText = data.state;
-        document.getElementById("players").innerText = data.players;
+        const players = await fetch(API + "/players").then(r=>r.json());
+        document.getElementById("playerList").innerText = players.players;
+        document.getElementById("playerCount").innerText = players.players;
+
+        const logs = await fetch(API + "/console").then(r=>r.json());
+        document.getElementById("log").innerHTML = logs.logs.join("<br>");
 
     }catch{
-        log("Cannot reach server");
+        log("⚠ Cannot connect to panel");
     }
 }
 
-setInterval(update,3000);
+setInterval(update,2000);
 update();
 
 </script>
