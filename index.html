@@ -1,28 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Server Panel v104</title>
+<title>Minecraft Control Panel</title>
+
 <style>
-body{background:#0b0f14;color:white;font-family:Arial}
+body{margin:0;background:#0b0f14;color:white;font-family:Arial}
+.top{padding:20px;text-align:center}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:20px}
 .box{background:#151b22;padding:15px;border-radius:10px}
-.console{height:200px;overflow:auto;background:black;padding:10px}
-button{margin:3px;padding:8px}
+button{margin:3px;padding:8px;cursor:pointer}
+.console{height:220px;overflow:auto;background:black;padding:10px;font-size:12px}
 </style>
 </head>
 
 <body>
 
-<h2 style="text-align:center">🔥 FULL HOSTING PANEL v104</h2>
+<div class="top">
+<h2>🔥 MINECRAFT CONTROL PANEL</h2>
+<p id="state">...</p>
+<p>🌐 https://flashy-stardust-endless.ngrok-free.dev</p>
+</div>
 
 <div class="grid">
 
 <div class="box">
-<h3>Controls</h3>
+<h3>Server Control</h3>
 <button onclick="start()">Start</button>
 <button onclick="stop()">Stop</button>
 <button onclick="restart()">Restart</button>
-<p id="state"></p>
 <p id="ram"></p>
 </div>
 
@@ -43,9 +48,32 @@ button{margin:3px;padding:8px}
 </div>
 
 <div class="box">
-<h3>File Manager</h3>
-<button onclick="files()">Load Files</button>
-<div id="files"></div>
+<h3>Operator Panel</h3>
+
+<input id="player" placeholder="player">
+
+<br><br>
+
+<button onclick="op()">OP</button>
+<button onclick="deop()">DEOP</button>
+<button onclick="kick()">KICK</button>
+<button onclick="ban()">BAN</button>
+
+<br><br>
+
+<button onclick="gm('survival')">SURVIVAL</button>
+<button onclick="gm('creative')">CREATIVE</button>
+
+<br><br>
+
+<button onclick="time('day')">DAY</button>
+<button onclick="time('night')">NIGHT</button>
+
+<br><br>
+
+<button onclick="weather('clear')">CLEAR</button>
+<button onclick="weather('rain')">RAIN</button>
+
 </div>
 
 </div>
@@ -53,24 +81,11 @@ button{margin:3px;padding:8px}
 <script>
 
 const API = "https://flashy-stardust-endless.ngrok-free.dev";
-const KEY = "my-secret-key-123";
-
-const ws = new WebSocket(API.replace("https","wss"));
-
-ws.onmessage = e => {
-    const d = JSON.parse(e.data);
-    if(d.type === "log"){
-        console.innerHTML += "» "+d.data+"<br>";
-    }
-};
 
 function api(p,m="GET",b=null){
 return fetch(API+p,{
 method:m,
-headers:{
-"Content-Type":"application/json",
-"x-api-key":KEY
-},
+headers:{ "Content-Type":"application/json" },
 body:b?JSON.stringify(b):null
 });
 }
@@ -83,15 +98,22 @@ function send(){
 api("/command","POST",{command:cmd.value});
 }
 
-async function files(){
-let f = await api("/files").then(r=>r.json());
-files.innerHTML = f.files.map(x=>"📄 "+x.name).join("<br>");
-}
+function player(){return document.getElementById("player").value;}
+
+function op(){api("/op","POST",{player:player()})}
+function deop(){api("/deop","POST",{player:player()})}
+function kick(){api("/kick","POST",{player:player()})}
+function ban(){api("/ban","POST",{player:player()})}
+
+function gm(m){api("/gamemode","POST",{mode:m,player:player()})}
+function time(v){api("/time","POST",{value:v})}
+function weather(t){api("/weather","POST",{type:t})}
 
 setInterval(async()=>{
+
 let s = await api("/status").then(r=>r.json());
 state.innerText = s.state;
-ram.innerText = "RAM "+s.ram.used+"MB";
+ram.innerText = "RAM: " + s.ram + "MB";
 
 let p = await api("/players").then(r=>r.json());
 players.innerText = p.players;
