@@ -1,255 +1,137 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Minecraft Control Panel</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
-<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<title>Minecraft Hosting Panel</title>
 
 <style>
 body {
-    margin:0;
-    font-family: Inter;
-    background: radial-gradient(circle at top, #0b1220, #05070a);
-    color:white;
+    margin: 0;
+    font-family: Arial;
+    background: #0f0f14;
+    color: white;
 }
 
 header {
-    text-align:center;
-    padding:25px;
+    padding: 20px;
+    text-align: center;
+    font-size: 22px;
 }
 
-h1 {
-    font-family:"Press Start 2P";
-    font-size:14px;
+.panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    padding: 20px;
 }
 
-.container {
-    max-width:1200px;
-    margin:auto;
-    padding:20px;
+.box {
+    background: #1a1a22;
+    padding: 15px;
+    border-radius: 10px;
 }
-
-.grid {
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-    gap:15px;
-}
-
-.card {
-    background:rgba(255,255,255,0.05);
-    border:1px solid rgba(255,255,255,0.08);
-    border-radius:12px;
-    padding:15px;
-}
-
-.badge {
-    padding:5px 10px;
-    border-radius:20px;
-    font-size:12px;
-}
-
-.online{background:#22c55e33;color:#22c55e}
-.offline{background:#ef444433;color:#ef4444}
-.starting{background:#facc1533;color:#facc15}
 
 button {
-    padding:10px;
-    margin:5px;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    font-weight:600;
+    margin: 5px;
+    padding: 10px;
+    cursor: pointer;
 }
 
-.green{background:#22c55e}
-.red{background:#ef4444}
-.blue{background:#3b82f6}
-
-input {
-    width:100%;
-    padding:8px;
-    margin-top:6px;
-    border-radius:6px;
-    border:none;
-}
+.green { background: #22c55e; }
+.red { background: #ef4444; }
+.blue { background: #3b82f6; }
 
 .console {
-    background:black;
-    height:260px;
-    overflow:auto;
-    font-family:monospace;
-    font-size:12px;
-    padding:10px;
+    height: 200px;
+    overflow: auto;
+    background: black;
+    padding: 10px;
+    font-size: 12px;
 }
 
 .player {
-    display:flex;
-    justify-content:space-between;
-    padding:6px;
-    background:rgba(255,255,255,0.05);
-    margin-top:5px;
-    border-radius:6px;
+    display: flex;
+    justify-content: space-between;
+    padding: 5px;
+    background: #222;
+    margin: 3px;
 }
 </style>
-
 </head>
 
 <body>
 
-<header>
-    <h1>MINECRAFT CONTROL PANEL</h1>
-    <div id="status" class="badge offline">OFFLINE</div>
-</header>
+<header>🔥 MINECRAFT HOSTING PANEL (V102)</header>
 
-<div class="container">
+<div class="panel">
 
-<!-- TOP -->
-<div class="grid">
+<div class="box">
+<h3>Server Controls</h3>
+<button class="green" onclick="start()">Start</button>
+<button class="red" onclick="stop()">Stop</button>
+<button class="blue" onclick="restart()">Restart</button>
 
-    <div class="card">
-        <h3>Controls</h3>
-        <button class="green" onclick="start()">Start</button>
-        <button class="red" onclick="stop()">Stop</button>
-        <button class="blue" onclick="restart()">Restart</button>
-    </div>
-
-    <div class="card">
-        <h3>Server Info</h3>
-        <div>RAM: <span id="ram">-</span></div>
-        <div>Players:</div>
-        <div id="players">-</div>
-    </div>
-
+<p id="status">Status: ...</p>
 </div>
 
-<br>
-
-<!-- OPERATOR -->
-<div class="grid">
-
-<div class="card">
-    <h3>Operator Commands</h3>
-
-    <input id="cmd" placeholder="command (give, tp, gamemode...)">
-    <button class="blue" onclick="sendCommand()">Send</button>
-
-    <input id="player" placeholder="player name">
-
-    <button class="red" onclick="kick()">Kick</button>
-    <button class="red" onclick="ban()">Ban</button>
-    <button class="green" onclick="op()">OP</button>
+<div class="box">
+<h3>Players</h3>
+<div id="players"></div>
 </div>
 
+<div class="box">
+<h3>Console</h3>
+<div class="console" id="console"></div>
 </div>
 
-<br>
-
-<!-- CONSOLE -->
-<div class="card">
-    <h3>Live Console</h3>
-    <div class="console" id="console"></div>
+<div class="box">
+<h3>Command</h3>
+<input id="cmd" placeholder="command..." />
+<button onclick="sendCmd()">Send</button>
 </div>
 
 </div>
 
 <script>
 
-// ================= CONFIG =================
 const API = "https://flashy-stardust-endless.ngrok-free.dev";
 const KEY = "my-secret-key-123";
 
-const socket = io(API);
-
-const headers = {
-    "Content-Type": "application/json",
-    "x-api-key": KEY
-};
-
-// ================= STATUS =================
-async function updateStatus(){
-    const res = await fetch(API+"/status");
-    const d = await res.json();
-
-    const el = document.getElementById("status");
-
-    if(d.state==="RUNNING"){
-        el.innerText="ONLINE";
-        el.className="badge online";
-    }
-    else if(d.state==="STARTING"){
-        el.innerText="STARTING";
-        el.className="badge starting";
-    }
-    else {
-        el.innerText="OFFLINE";
-        el.className="badge offline";
-    }
-}
-
-// ================= RAM =================
-async function updateRam(){
-    try {
-        const res = await fetch(API+"/stats");
-        const d = await res.json();
-        document.getElementById("ram").innerText = d.ram + " MB";
-    } catch {}
-}
-
-// ================= PLAYERS =================
-async function updatePlayers(){
-    try {
-        const res = await fetch(API+"/players");
-        const d = await res.json();
-        document.getElementById("players").innerText = d.players;
-    } catch {
-        document.getElementById("players").innerText = "offline";
-    }
-}
-
-// ================= COMMAND =================
-function sendCommand(){
-    fetch(API+"/command",{
-        method:"POST",
-        headers,
-        body:JSON.stringify({command:cmd.value})
+function api(path, method="GET", body=null){
+    return fetch(API + path, {
+        method,
+        headers: {
+            "Content-Type":"application/json",
+            "x-api-key": KEY
+        },
+        body: body ? JSON.stringify(body) : null
     });
 }
 
-// ================= OP ACTIONS =================
-function kick(){
-    fetch(API+"/kick",{method:"POST",headers,body:JSON.stringify({player:player.value})});
-}
-function ban(){
-    fetch(API+"/ban",{method:"POST",headers,body:JSON.stringify({player:player.value})});
-}
-function op(){
-    fetch(API+"/op",{method:"POST",headers,body:JSON.stringify({player:player.value})});
+function start(){ api("/start","POST"); }
+function stop(){ api("/stop","POST"); }
+function restart(){ api("/restart","POST"); }
+
+function sendCmd(){
+    let c = document.getElementById("cmd").value;
+    api("/command","POST",{command:c});
 }
 
-// ================= SERVER CONTROL =================
-function start(){ fetch(API+"/start",{method:"POST",headers}); }
-function stop(){ fetch(API+"/stop",{method:"POST",headers}); }
-function restart(){ fetch(API+"/restart",{method:"POST",headers}); }
+async function update(){
 
-// ================= SOCKET LOG =================
-socket.on("log",(msg)=>{
-    const c = document.getElementById("console");
-    c.innerHTML += msg + "<br>";
-    c.scrollTop = c.scrollHeight;
-});
+    let s = await api("/status").then(r=>r.json());
+    document.getElementById("status").innerText = "Status: " + s.state;
 
-// ================= LOOP =================
-setInterval(updateStatus,2000);
-setInterval(updateRam,3000);
-setInterval(updatePlayers,3000);
+    let p = await api("/players").then(r=>r.json());
+    document.getElementById("players").innerText = p.players;
 
-updateStatus();
-updateRam();
-updatePlayers();
+    let c = await api("/console").then(r=>r.json());
+    document.getElementById("console").innerHTML =
+        c.logs.map(l=>"» "+l).join("<br>");
+
+}
+
+setInterval(update,2000);
+update();
 
 </script>
 
