@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Minecraft Hosting Control Panel</title>
+<title>Minecraft Control Panel</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
@@ -28,7 +28,7 @@ h1 {
 }
 
 .container {
-    max-width:1300px;
+    max-width:1200px;
     margin:auto;
     padding:20px;
 }
@@ -44,7 +44,6 @@ h1 {
     border:1px solid rgba(255,255,255,0.08);
     border-radius:12px;
     padding:15px;
-    backdrop-filter: blur(10px);
 }
 
 .badge {
@@ -70,15 +69,6 @@ button {
 .red{background:#ef4444}
 .blue{background:#3b82f6}
 
-.console {
-    background:black;
-    height:260px;
-    overflow:auto;
-    font-family:monospace;
-    font-size:12px;
-    padding:10px;
-}
-
 input {
     width:100%;
     padding:8px;
@@ -87,10 +77,13 @@ input {
     border:none;
 }
 
-.section-title {
-    font-size:13px;
-    opacity:0.7;
-    margin-bottom:6px;
+.console {
+    background:black;
+    height:260px;
+    overflow:auto;
+    font-family:monospace;
+    font-size:12px;
+    padding:10px;
 }
 
 .player {
@@ -101,64 +94,50 @@ input {
     margin-top:5px;
     border-radius:6px;
 }
-
-.small {
-    font-size:12px;
-    opacity:0.7;
-}
 </style>
+
 </head>
 
 <body>
 
 <header>
-    <h1>MINECRAFT CONTROL PANEL v101</h1>
-    <div class="small">ServerMiner-style Hosting Dashboard</div>
+    <h1>MINECRAFT CONTROL PANEL</h1>
+    <div id="status" class="badge offline">OFFLINE</div>
 </header>
 
 <div class="container">
 
-<!-- TOP STATUS -->
+<!-- TOP -->
 <div class="grid">
 
     <div class="card">
-        <div class="section-title">SERVER STATUS</div>
-        <div id="status" class="badge offline">OFFLINE</div>
-    </div>
-
-    <div class="card">
-        <div class="section-title">RAM USAGE</div>
-        <div id="ram">-</div>
-    </div>
-
-    <div class="card">
-        <div class="section-title">CONTROLS</div>
+        <h3>Controls</h3>
         <button class="green" onclick="start()">Start</button>
         <button class="red" onclick="stop()">Stop</button>
         <button class="blue" onclick="restart()">Restart</button>
+    </div>
+
+    <div class="card">
+        <h3>Server Info</h3>
+        <div>RAM: <span id="ram">-</span></div>
+        <div>Players:</div>
+        <div id="players">-</div>
     </div>
 
 </div>
 
 <br>
 
-<!-- SECOND ROW -->
+<!-- OPERATOR -->
 <div class="grid">
 
-<!-- PLAYERS -->
 <div class="card">
-    <div class="section-title">PLAYERS</div>
-    <div id="players">Loading...</div>
-</div>
+    <h3>Operator Commands</h3>
 
-<!-- OPERATOR PANEL -->
-<div class="card">
-    <div class="section-title">OPERATOR PANEL</div>
+    <input id="cmd" placeholder="command (give, tp, gamemode...)">
+    <button class="blue" onclick="sendCommand()">Send</button>
 
-    <input id="cmd" placeholder="Enter command (give, tp, gamemode...)">
-    <button class="blue" onclick="command()">Send Command</button>
-
-    <input id="player" placeholder="Player name">
+    <input id="player" placeholder="player name">
 
     <button class="red" onclick="kick()">Kick</button>
     <button class="red" onclick="ban()">Ban</button>
@@ -169,28 +148,9 @@ input {
 
 <br>
 
-<!-- FILE + WORLD VIEW -->
-<div class="grid">
-
-<div class="card">
-    <div class="section-title">WORLD FILES</div>
-    <button class="blue" onclick="loadWorlds()">Load Worlds</button>
-    <div id="worlds"></div>
-</div>
-
-<div class="card">
-    <div class="section-title">SERVER FILES</div>
-    <button class="blue" onclick="loadFiles()">Load Files</button>
-    <div id="files"></div>
-</div>
-
-</div>
-
-<br>
-
 <!-- CONSOLE -->
 <div class="card">
-    <div class="section-title">LIVE CONSOLE</div>
+    <h3>Live Console</h3>
     <div class="console" id="console"></div>
 </div>
 
@@ -210,7 +170,7 @@ const headers = {
 };
 
 // ================= STATUS =================
-async function status(){
+async function updateStatus(){
     const res = await fetch(API+"/status");
     const d = await res.json();
 
@@ -219,40 +179,47 @@ async function status(){
     if(d.state==="RUNNING"){
         el.innerText="ONLINE";
         el.className="badge online";
-    } else if(d.state==="STARTING"){
+    }
+    else if(d.state==="STARTING"){
         el.innerText="STARTING";
         el.className="badge starting";
-    } else {
+    }
+    else {
         el.innerText="OFFLINE";
         el.className="badge offline";
     }
 }
 
 // ================= RAM =================
-async function ram(){
-    const res = await fetch(API+"/stats");
-    const d = await res.json();
-    document.getElementById("ram").innerText = d.ram + " MB";
+async function updateRam(){
+    try {
+        const res = await fetch(API+"/stats");
+        const d = await res.json();
+        document.getElementById("ram").innerText = d.ram + " MB";
+    } catch {}
 }
 
 // ================= PLAYERS =================
-async function players(){
-    const res = await fetch(API+"/players");
-    const d = await res.json();
-
-    document.getElementById("players").innerText = d.players;
+async function updatePlayers(){
+    try {
+        const res = await fetch(API+"/players");
+        const d = await res.json();
+        document.getElementById("players").innerText = d.players;
+    } catch {
+        document.getElementById("players").innerText = "offline";
+    }
 }
 
 // ================= COMMAND =================
-function command(){
+function sendCommand(){
     fetch(API+"/command",{
         method:"POST",
         headers,
-        body:JSON.stringify({command:document.getElementById("cmd").value})
+        body:JSON.stringify({command:cmd.value})
     });
 }
 
-// ================= KICK / BAN / OP =================
+// ================= OP ACTIONS =================
 function kick(){
     fetch(API+"/kick",{method:"POST",headers,body:JSON.stringify({player:player.value})});
 }
@@ -263,30 +230,12 @@ function op(){
     fetch(API+"/op",{method:"POST",headers,body:JSON.stringify({player:player.value})});
 }
 
-// ================= WORLD FILES =================
-async function loadWorlds(){
-    const res = await fetch(API+"/worlds",{headers});
-    const d = await res.json();
+// ================= SERVER CONTROL =================
+function start(){ fetch(API+"/start",{method:"POST",headers}); }
+function stop(){ fetch(API+"/stop",{method:"POST",headers}); }
+function restart(){ fetch(API+"/restart",{method:"POST",headers}); }
 
-    document.getElementById("worlds").innerHTML =
-        d.worlds.map(w=>`<div class="player">${w}</div>`).join("");
-}
-
-// ================= FILES =================
-async function loadFiles(){
-    const res = await fetch(API+"/files",{headers});
-    const d = await res.json();
-
-    document.getElementById("files").innerHTML =
-        d.files.map(f=>`<div class="player">${f}</div>`).join("");
-}
-
-// ================= SERVER CONTROLS =================
-function start(){fetch(API+"/start",{method:"POST",headers})}
-function stop(){fetch(API+"/stop",{method:"POST",headers})}
-function restart(){fetch(API+"/restart",{method:"POST",headers})}
-
-// ================= SOCKET CONSOLE =================
+// ================= SOCKET LOG =================
 socket.on("log",(msg)=>{
     const c = document.getElementById("console");
     c.innerHTML += msg + "<br>";
@@ -294,11 +243,13 @@ socket.on("log",(msg)=>{
 });
 
 // ================= LOOP =================
-setInterval(status,2000);
-setInterval(ram,3000);
-setInterval(players,3000);
+setInterval(updateStatus,2000);
+setInterval(updateRam,3000);
+setInterval(updatePlayers,3000);
 
-status();ram();players();
+updateStatus();
+updateRam();
+updatePlayers();
 
 </script>
 
