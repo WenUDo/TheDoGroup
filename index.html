@@ -1,29 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Server Panel v103</title>
+<title>Server Panel v104</title>
 <style>
-body{background:#0b0f14;color:white;font-family:Arial;margin:0}
-.panel{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:20px}
+body{background:#0b0f14;color:white;font-family:Arial}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:20px}
 .box{background:#151b22;padding:15px;border-radius:10px}
-button{margin:3px;padding:8px}
 .console{height:200px;overflow:auto;background:black;padding:10px}
-.player{display:flex;justify-content:space-between}
+button{margin:3px;padding:8px}
 </style>
 </head>
 
 <body>
 
-<h2 style="text-align:center">🔥 SERVERMINER STYLE PANEL v103</h2>
+<h2 style="text-align:center">🔥 FULL HOSTING PANEL v104</h2>
 
-<div class="panel">
+<div class="grid">
 
 <div class="box">
 <h3>Controls</h3>
 <button onclick="start()">Start</button>
 <button onclick="stop()">Stop</button>
 <button onclick="restart()">Restart</button>
-<p id="state">...</p>
+<p id="state"></p>
 <p id="ram"></p>
 </div>
 
@@ -43,6 +42,12 @@ button{margin:3px;padding:8px}
 <button onclick="send()">Send</button>
 </div>
 
+<div class="box">
+<h3>File Manager</h3>
+<button onclick="files()">Load Files</button>
+<div id="files"></div>
+</div>
+
 </div>
 
 <script>
@@ -50,18 +55,15 @@ button{margin:3px;padding:8px}
 const API = "https://flashy-stardust-endless.ngrok-free.dev";
 const KEY = "my-secret-key-123";
 
-// websocket live console
 const ws = new WebSocket(API.replace("https","wss"));
 
-ws.onmessage = (msg)=>{
-    const data = JSON.parse(msg.data);
-
-    if(data.type === "log"){
-        document.getElementById("console").innerHTML += "» "+data.data+"<br>";
+ws.onmessage = e => {
+    const d = JSON.parse(e.data);
+    if(d.type === "log"){
+        console.innerHTML += "» "+d.data+"<br>";
     }
 };
 
-// API helper
 function api(p,m="GET",b=null){
 return fetch(API+p,{
 method:m,
@@ -81,14 +83,18 @@ function send(){
 api("/command","POST",{command:cmd.value});
 }
 
-// live update
+async function files(){
+let f = await api("/files").then(r=>r.json());
+files.innerHTML = f.files.map(x=>"📄 "+x.name).join("<br>");
+}
+
 setInterval(async()=>{
 let s = await api("/status").then(r=>r.json());
 state.innerText = s.state;
-ram.innerText = "RAM: "+s.ram.used.toFixed(1)+"MB";
+ram.innerText = "RAM "+s.ram.used+"MB";
 
 let p = await api("/players").then(r=>r.json());
-players.innerHTML = p.players;
+players.innerText = p.players;
 
 },2000);
 
