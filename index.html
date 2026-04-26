@@ -4,100 +4,107 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-<title>Minecraft Hosting Panel</title>
+<title>Minecraft Hosting Control Panel</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
 <style>
 body {
-    margin: 0;
+    margin:0;
     font-family: Inter;
     background: radial-gradient(circle at top, #0b1220, #05070a);
-    color: white;
+    color:white;
 }
 
 header {
-    text-align: center;
-    padding: 30px;
+    text-align:center;
+    padding:25px;
 }
 
 h1 {
-    font-family: "Press Start 2P";
-    font-size: 16px;
+    font-family:"Press Start 2P";
+    font-size:14px;
 }
 
 .container {
-    max-width: 1200px;
-    margin: auto;
-    padding: 20px;
+    max-width:1300px;
+    margin:auto;
+    padding:20px;
 }
 
 .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 15px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:15px;
 }
 
 .card {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px;
-    padding: 15px;
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:12px;
+    padding:15px;
+    backdrop-filter: blur(10px);
 }
 
 .badge {
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-size: 12px;
+    padding:5px 10px;
+    border-radius:20px;
+    font-size:12px;
 }
 
-.online { background: #22c55e33; color: #22c55e; }
-.offline { background: #ef444433; color: #ef4444; }
-.starting { background: #facc1533; color: #facc15; }
+.online{background:#22c55e33;color:#22c55e}
+.offline{background:#ef444433;color:#ef4444}
+.starting{background:#facc1533;color:#facc15}
 
 button {
-    padding: 10px;
-    margin: 5px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
+    padding:10px;
+    margin:5px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
 }
 
-.green { background: #22c55e; }
-.red { background: #ef4444; }
-.blue { background: #3b82f6; }
+.green{background:#22c55e}
+.red{background:#ef4444}
+.blue{background:#3b82f6}
 
 .console {
-    background: black;
-    height: 250px;
-    overflow-y: auto;
-    font-family: monospace;
-    font-size: 12px;
-    padding: 10px;
+    background:black;
+    height:260px;
+    overflow:auto;
+    font-family:monospace;
+    font-size:12px;
+    padding:10px;
 }
 
 input {
-    padding: 8px;
-    width: 80%;
-    border-radius: 6px;
-    border: none;
+    width:100%;
+    padding:8px;
+    margin-top:6px;
+    border-radius:6px;
+    border:none;
 }
 
-.small {
-    font-size: 12px;
-    color: #aaa;
+.section-title {
+    font-size:13px;
+    opacity:0.7;
+    margin-bottom:6px;
 }
 
 .player {
-    display: flex;
-    justify-content: space-between;
-    padding: 5px;
-    background: rgba(255,255,255,0.05);
-    margin-top: 5px;
-    border-radius: 6px;
+    display:flex;
+    justify-content:space-between;
+    padding:6px;
+    background:rgba(255,255,255,0.05);
+    margin-top:5px;
+    border-radius:6px;
+}
+
+.small {
+    font-size:12px;
+    opacity:0.7;
 }
 </style>
 </head>
@@ -105,27 +112,27 @@ input {
 <body>
 
 <header>
-    <h1>MINECRAFT CONTROL PANEL</h1>
-    <div class="small">ServerMiner-style Dashboard</div>
+    <h1>MINECRAFT CONTROL PANEL v101</h1>
+    <div class="small">ServerMiner-style Hosting Dashboard</div>
 </header>
 
 <div class="container">
 
-<!-- STATUS -->
+<!-- TOP STATUS -->
 <div class="grid">
 
     <div class="card">
-        <h3>Status</h3>
+        <div class="section-title">SERVER STATUS</div>
         <div id="status" class="badge offline">OFFLINE</div>
     </div>
 
     <div class="card">
-        <h3>RAM Usage</h3>
+        <div class="section-title">RAM USAGE</div>
         <div id="ram">-</div>
     </div>
 
     <div class="card">
-        <h3>Server Controls</h3>
+        <div class="section-title">CONTROLS</div>
         <button class="green" onclick="start()">Start</button>
         <button class="red" onclick="stop()">Stop</button>
         <button class="blue" onclick="restart()">Restart</button>
@@ -135,27 +142,46 @@ input {
 
 <br>
 
+<!-- SECOND ROW -->
 <div class="grid">
 
 <!-- PLAYERS -->
 <div class="card">
-    <h3>Players Online</h3>
-    <div id="players"></div>
+    <div class="section-title">PLAYERS</div>
+    <div id="players">Loading...</div>
 </div>
 
 <!-- OPERATOR PANEL -->
 <div class="card">
-    <h3>Operator Tools</h3>
+    <div class="section-title">OPERATOR PANEL</div>
 
-    <input id="cmd" placeholder="command (op, give, tp, etc)">
-    <button class="blue" onclick="sendCommand()">Send</button>
+    <input id="cmd" placeholder="Enter command (give, tp, gamemode...)">
+    <button class="blue" onclick="command()">Send Command</button>
 
-    <hr>
-
-    <input id="playerName" placeholder="player name">
+    <input id="player" placeholder="Player name">
 
     <button class="red" onclick="kick()">Kick</button>
     <button class="red" onclick="ban()">Ban</button>
+    <button class="green" onclick="op()">OP</button>
+</div>
+
+</div>
+
+<br>
+
+<!-- FILE + WORLD VIEW -->
+<div class="grid">
+
+<div class="card">
+    <div class="section-title">WORLD FILES</div>
+    <button class="blue" onclick="loadWorlds()">Load Worlds</button>
+    <div id="worlds"></div>
+</div>
+
+<div class="card">
+    <div class="section-title">SERVER FILES</div>
+    <button class="blue" onclick="loadFiles()">Load Files</button>
+    <div id="files"></div>
 </div>
 
 </div>
@@ -164,7 +190,7 @@ input {
 
 <!-- CONSOLE -->
 <div class="card">
-    <h3>Live Console</h3>
+    <div class="section-title">LIVE CONSOLE</div>
     <div class="console" id="console"></div>
 </div>
 
@@ -184,110 +210,95 @@ const headers = {
 };
 
 // ================= STATUS =================
-async function updateStatus(){
-    const res = await fetch(API + "/status");
-    const data = await res.json();
+async function status(){
+    const res = await fetch(API+"/status");
+    const d = await res.json();
 
     const el = document.getElementById("status");
 
-    if(data.state === "RUNNING"){
-        el.innerText = "ONLINE";
-        el.className = "badge online";
-    } else if(data.state === "STARTING"){
-        el.innerText = "STARTING";
-        el.className = "badge starting";
+    if(d.state==="RUNNING"){
+        el.innerText="ONLINE";
+        el.className="badge online";
+    } else if(d.state==="STARTING"){
+        el.innerText="STARTING";
+        el.className="badge starting";
     } else {
-        el.innerText = "OFFLINE";
-        el.className = "badge offline";
+        el.innerText="OFFLINE";
+        el.className="badge offline";
     }
 }
 
 // ================= RAM =================
-async function updateRAM(){
-    try {
-        const res = await fetch(API + "/stats");
-        const data = await res.json();
-
-        document.getElementById("ram").innerText =
-            `${data.ram}MB / ${data.totalRam}MB`;
-    } catch {}
+async function ram(){
+    const res = await fetch(API+"/stats");
+    const d = await res.json();
+    document.getElementById("ram").innerText = d.ram + " MB";
 }
 
 // ================= PLAYERS =================
-async function updatePlayers(){
-    try {
-        const res = await fetch(API + "/players");
-        const data = await res.json();
+async function players(){
+    const res = await fetch(API+"/players");
+    const d = await res.json();
 
-        document.getElementById("players").innerText = data.players;
-    } catch {
-        document.getElementById("players").innerText = "offline";
-    }
+    document.getElementById("players").innerText = d.players;
 }
 
 // ================= COMMAND =================
-function sendCommand(){
-    const command = document.getElementById("cmd").value;
-
-    fetch(API + "/command", {
+function command(){
+    fetch(API+"/command",{
         method:"POST",
         headers,
-        body: JSON.stringify({ command })
+        body:JSON.stringify({command:document.getElementById("cmd").value})
     });
-
-    document.getElementById("cmd").value = "";
 }
 
-// ================= KICK =================
+// ================= KICK / BAN / OP =================
 function kick(){
-    const player = document.getElementById("playerName").value;
-
-    fetch(API + "/kick", {
-        method:"POST",
-        headers,
-        body: JSON.stringify({ player })
-    });
+    fetch(API+"/kick",{method:"POST",headers,body:JSON.stringify({player:player.value})});
+}
+function ban(){
+    fetch(API+"/ban",{method:"POST",headers,body:JSON.stringify({player:player.value})});
+}
+function op(){
+    fetch(API+"/op",{method:"POST",headers,body:JSON.stringify({player:player.value})});
 }
 
-// ================= BAN =================
-function ban(){
-    const player = document.getElementById("playerName").value;
+// ================= WORLD FILES =================
+async function loadWorlds(){
+    const res = await fetch(API+"/worlds",{headers});
+    const d = await res.json();
 
-    fetch(API + "/ban", {
-        method:"POST",
-        headers,
-        body: JSON.stringify({ player })
-    });
+    document.getElementById("worlds").innerHTML =
+        d.worlds.map(w=>`<div class="player">${w}</div>`).join("");
+}
+
+// ================= FILES =================
+async function loadFiles(){
+    const res = await fetch(API+"/files",{headers});
+    const d = await res.json();
+
+    document.getElementById("files").innerHTML =
+        d.files.map(f=>`<div class="player">${f}</div>`).join("");
 }
 
 // ================= SERVER CONTROLS =================
-function start(){
-    fetch(API + "/start", { method:"POST", headers });
-}
+function start(){fetch(API+"/start",{method:"POST",headers})}
+function stop(){fetch(API+"/stop",{method:"POST",headers})}
+function restart(){fetch(API+"/restart",{method:"POST",headers})}
 
-function stop(){
-    fetch(API + "/stop", { method:"POST", headers });
-}
-
-function restart(){
-    fetch(API + "/restart", { method:"POST", headers });
-}
-
-// ================= LIVE CONSOLE (SOCKET) =================
-socket.on("log", (msg) => {
-    const box = document.getElementById("console");
-    box.innerHTML += msg + "<br>";
-    box.scrollTop = box.scrollHeight;
+// ================= SOCKET CONSOLE =================
+socket.on("log",(msg)=>{
+    const c = document.getElementById("console");
+    c.innerHTML += msg + "<br>";
+    c.scrollTop = c.scrollHeight;
 });
 
 // ================= LOOP =================
-setInterval(updateStatus, 3000);
-setInterval(updateRAM, 3000);
-setInterval(updatePlayers, 4000);
+setInterval(status,2000);
+setInterval(ram,3000);
+setInterval(players,3000);
 
-updateStatus();
-updateRAM();
-updatePlayers();
+status();ram();players();
 
 </script>
 
