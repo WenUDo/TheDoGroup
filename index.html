@@ -14,22 +14,11 @@ body {
     font-family: Inter;
     background: radial-gradient(circle at top, #0b1220, #05070a);
     color: white;
-    overflow-x: hidden;
-}
-
-.bg {
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    background:
-        radial-gradient(circle at 20% 20%, rgba(34,197,94,0.12), transparent 40%),
-        radial-gradient(circle at 80% 30%, rgba(59,130,246,0.12), transparent 40%);
-    z-index: -1;
 }
 
 header {
     text-align: center;
-    padding: 60px 20px 20px;
+    padding: 50px 20px;
 }
 
 h1 {
@@ -52,41 +41,42 @@ h1 {
 }
 
 .card {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 14px;
-    padding: 18px;
-}
-
-.title {
-    font-weight: 700;
-    font-size: 16px;
-}
-
-.desc {
-    font-size: 13px;
-    color: #9ca3af;
-    margin-top: 6px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 16px;
 }
 
 .badge {
-    display: inline-block;
     margin-top: 10px;
-    padding: 5px 10px;
+    padding: 6px 10px;
     border-radius: 20px;
     font-size: 12px;
     font-weight: bold;
 }
 
-.online { background: rgba(34,197,94,0.2); color: #22c55e; }
-.offline { background: rgba(239,68,68,0.2); color: #ef4444; }
-.starting { background: rgba(250,204,21,0.2); color: #facc15; }
+.online { background: #14532d; color: #22c55e; }
+.offline { background: #7f1d1d; color: #ef4444; }
+.starting { background: #78350f; color: #facc15; }
 
 .panel {
     max-width: 1000px;
     margin: auto;
     padding: 20px;
 }
+
+button {
+    padding: 10px 14px;
+    margin: 6px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.green { background: #22c55e; color: black; }
+.red { background: #ef4444; color: white; }
+.blue { background: #3b82f6; color: white; }
+.gray { background: #374151; color: white; }
 
 .console {
     background: black;
@@ -97,24 +87,12 @@ h1 {
     font-size: 12px;
     color: #55ff55;
     border-radius: 10px;
+    margin-top: 10px;
 }
-
-button {
-    padding: 10px 14px;
-    margin: 5px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 700;
-}
-
-.green { background: #22c55e; color: black; }
-.red { background: #ef4444; color: white; }
-.blue { background: #3b82f6; color: white; }
 
 footer {
     text-align: center;
-    padding: 40px;
+    padding: 30px;
     color: #666;
 }
 </style>
@@ -123,31 +101,27 @@ footer {
 
 <body>
 
-<div class="bg"></div>
-
 <header>
     <h1>MINECRAFT NETWORK</h1>
     <div class="sub">Survival • PvP • Economy • Events</div>
 </header>
 
-<!-- HUB -->
+<!-- INFO -->
 <div class="grid">
 
     <div class="card">
-        <div class="title">Survival</div>
-        <div class="desc">Main survival world</div>
+        <b>Status</b>
         <div id="badge" class="badge offline">OFFLINE</div>
     </div>
 
     <div class="card">
-        <div class="title">Server IP</div>
-        <div class="desc">play.yourserver.com</div>
+        <b>Server IP</b>
+        <div>play.yourserver.com</div>
         <button class="green" onclick="copyIP()">Copy IP</button>
     </div>
 
     <div class="card">
-        <div class="title">Players</div>
-        <div class="desc">Live count</div>
+        <b>Players</b>
         <div id="players">-</div>
     </div>
 
@@ -162,16 +136,23 @@ footer {
     <button class="red" onclick="stop()">Stop</button>
     <button class="blue" onclick="restart()">Restart</button>
 
+    <h2>Game Controls</h2>
+
+    <button class="green" onclick="setCreative()">Creative</button>
+    <button class="gray" onclick="setHard()">Hardcore</button>
+
+    <button class="blue" onclick="setDay()">Day</button>
+    <button class="blue" onclick="setNight()">Night</button>
+
     <h3>Console</h3>
     <div class="console" id="log"></div>
 
 </div>
 
 <footer>
-    Minecraft Network System
+    Minecraft Control Panel
 </footer>
 
-<!-- ✅ SCRIPT IS NOW CORRECTLY PLACED HERE -->
 <script>
 
 const API = "https://flashy-stardust-endless.ngrok-free.dev";
@@ -192,9 +173,10 @@ function log(t){
 /* COPY IP */
 function copyIP(){
     navigator.clipboard.writeText("play.yourserver.com");
+    log("Copied IP to clipboard");
 }
 
-/* SAFE REQUEST */
+/* REQUEST */
 function send(path, msg){
     if(busy) return;
     busy = true;
@@ -204,48 +186,11 @@ function send(path, msg){
     fetch(API + path, {
         method: "POST",
         headers
-    }).catch(() => log("⚠ Connection error"))
+    }).catch(() => log("Connection error"))
       .finally(() => busy = false);
 }
 
-/* BUTTONS */
-function start(){ send("/start", "Starting server..."); }
-function stop(){ send("/stop", "Stopping server..."); }
-function restart(){ send("/restart", "Restarting server..."); }
-
-/* STATUS UPDATE */
-async function update(){
-    try {
-        const res = await fetch(API + "/status");
-        const data = await res.json();
-
-        document.getElementById("players").innerText = data.players;
-
-        const badge = document.getElementById("badge");
-
-        if(data.state === "RUNNING"){
-            badge.className = "badge online";
-            badge.innerText = "ONLINE";
-        }
-        else if(data.state === "STARTING"){
-            badge.className = "badge starting";
-            badge.innerText = "STARTING";
-        }
-        else {
-            badge.className = "badge offline";
-            badge.innerText = "OFFLINE";
-        }
-
-    } catch {
-        document.getElementById("badge").innerText = "OFFLINE";
-        log("Cannot connect to server");
-    }
-}
-
-setInterval(update, 3000);
-update();
-
-</script>
-
-</body>
-</html>
+/* COMMAND */
+function sendCommand(cmd, msg){
+    if(busy) return;
+    busy =
