@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Minecraft Control Panel</title>
+<title>Minecraft Panel</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
 body {
@@ -14,31 +14,53 @@ body {
     font-family: Inter;
     background: #0b1220;
     color: white;
+    display: flex;
 }
 
-header {
-    text-align: center;
-    padding: 40px;
-}
-
-h1 {
-    font-family: "Press Start 2P";
-    font-size: 16px;
-}
-
-.section {
-    max-width: 1000px;
-    margin: auto;
+/* SIDEBAR */
+.sidebar {
+    width: 220px;
+    background: #020617;
+    height: 100vh;
     padding: 20px;
 }
 
-button {
+.sidebar h2 {
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+.sidebar button {
+    width: 100%;
+    margin: 6px 0;
     padding: 10px;
-    margin: 5px;
+    background: #111827;
     border: none;
-    border-radius: 8px;
+    color: white;
     cursor: pointer;
-    font-weight: bold;
+    border-radius: 6px;
+}
+
+/* MAIN */
+.main {
+    flex: 1;
+    padding: 20px;
+}
+
+/* CARDS */
+.card {
+    background: #111827;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+button {
+    padding: 8px 12px;
+    margin: 4px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
 }
 
 .green { background: #22c55e; }
@@ -46,73 +68,91 @@ button {
 .blue { background: #3b82f6; }
 .gray { background: #374151; }
 
+/* CONSOLE */
 .console {
     background: black;
-    height: 150px;
+    height: 200px;
     overflow-y: auto;
     padding: 10px;
     font-family: monospace;
     color: #55ff55;
-    border-radius: 10px;
 }
 
+/* INPUT */
 input {
     padding: 10px;
     width: 70%;
-    border-radius: 8px;
+    border-radius: 6px;
     border: none;
 }
 </style>
-
 </head>
 
 <body>
 
-<header>
-    <h1>MINECRAFT CONTROL PANEL</h1>
-</header>
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <h2>MC PANEL</h2>
+    <button onclick="show('dashboard')">Dashboard</button>
+    <button onclick="show('console')">Console</button>
+    <button onclick="show('operators')">Operator</button>
+</div>
 
-<div class="section">
+<!-- MAIN -->
+<div class="main">
 
-<h2>Server</h2>
-<button class="green" onclick="start()">Start</button>
-<button class="red" onclick="stop()">Stop</button>
-<button class="blue" onclick="restart()">Restart</button>
+<!-- DASHBOARD -->
+<div id="dashboard" class="page">
+    <div class="card">
+        <h3>Status: <span id="status">OFFLINE</span></h3>
+        <p>Players: <span id="players">-</span></p>
 
-<h2>Gamemode</h2>
-<button onclick="cmd('gamemode creative @a')">Creative</button>
-<button onclick="cmd('gamemode survival @a')">Survival</button>
-<button onclick="cmd('gamemode adventure @a')">Adventure</button>
-<button onclick="cmd('gamemode spectator @a')">Spectator</button>
+        <button class="green" onclick="start()">Start</button>
+        <button class="red" onclick="stop()">Stop</button>
+        <button class="blue" onclick="restart()">Restart</button>
+    </div>
+</div>
 
-<h2>Difficulty</h2>
-<button onclick="cmd('difficulty peaceful')">Peaceful</button>
-<button onclick="cmd('difficulty easy')">Easy</button>
-<button onclick="cmd('difficulty normal')">Normal</button>
-<button onclick="cmd('difficulty hard')">Hard</button>
+<!-- CONSOLE -->
+<div id="console" class="page" style="display:none;">
+    <div class="card">
+        <div class="console" id="log"></div>
 
-<h2>Time</h2>
-<button onclick="cmd('time set day')">Day</button>
-<button onclick="cmd('time set noon')">Noon</button>
-<button onclick="cmd('time set night')">Night</button>
-<button onclick="cmd('time set midnight')">Midnight</button>
+        <input id="cmdInput" placeholder="Type command...">
+        <button onclick="runCmd()">Send</button>
+    </div>
+</div>
 
-<h2>Weather</h2>
-<button onclick="cmd('weather clear')">Clear</button>
-<button onclick="cmd('weather rain')">Rain</button>
-<button onclick="cmd('weather thunder')">Thunder</button>
+<!-- OPERATORS -->
+<div id="operators" class="page" style="display:none;">
 
-<h2>Quick Actions</h2>
-<button onclick="cmd('kill @e[type=!player]')">Kill All Mobs</button>
-<button onclick="cmd('give @p diamond_sword')">Give Sword</button>
-<button onclick="cmd('give @p diamond 64')">Give Diamonds</button>
+    <div class="card">
+        <h3>Gamemode</h3>
+        <button onclick="cmd('gamemode creative @a')">Creative</button>
+        <button onclick="cmd('gamemode survival @a')">Survival</button>
+        <button onclick="cmd('gamemode spectator @a')">Spectator</button>
+    </div>
 
-<h2>Custom Command</h2>
-<input id="commandInput" placeholder="Enter any command...">
-<button onclick="runCustom()">Run</button>
+    <div class="card">
+        <h3>Time</h3>
+        <button onclick="cmd('time set day')">Day</button>
+        <button onclick="cmd('time set night')">Night</button>
+    </div>
 
-<h2>Console</h2>
-<div id="log" class="console"></div>
+    <div class="card">
+        <h3>Weather</h3>
+        <button onclick="cmd('weather clear')">Clear</button>
+        <button onclick="cmd('weather rain')">Rain</button>
+        <button onclick="cmd('weather thunder')">Thunder</button>
+    </div>
+
+    <div class="card">
+        <h3>Difficulty</h3>
+        <button onclick="cmd('difficulty peaceful')">Peaceful</button>
+        <button onclick="cmd('difficulty hard')">Hard</button>
+    </div>
+
+</div>
 
 </div>
 
@@ -126,41 +166,60 @@ const headers = {
     "x-api-key": KEY
 };
 
-let busy = false;
+/* NAV */
+function show(page){
+    document.querySelectorAll(".page").forEach(p => p.style.display="none");
+    document.getElementById(page).style.display="block";
+}
 
+/* LOG */
 function log(t){
     document.getElementById("log").innerHTML += "» " + t + "<br>";
 }
 
+/* SERVER */
 function send(path, msg){
     log(msg);
-
-    fetch(API + path, {
-        method: "POST",
-        headers
-    }).catch(() => log("Error"));
+    fetch(API + path, { method:"POST", headers });
 }
 
+function start(){ send("/start","Starting server"); }
+function stop(){ send("/stop","Stopping server"); }
+function restart(){ send("/restart","Restarting server"); }
+
+/* COMMAND */
 function cmd(command){
     log("Running: " + command);
 
     fetch(API + "/command", {
-        method: "POST",
+        method:"POST",
         headers,
         body: JSON.stringify({ command })
-    }).catch(() => log("Command failed"));
+    });
 }
 
-function runCustom(){
-    const input = document.getElementById("commandInput").value;
-    if(!input) return;
-    cmd(input);
+function runCmd(){
+    const val = document.getElementById("cmdInput").value;
+    if(!val) return;
+    cmd(val);
 }
 
-/* SERVER */
-function start(){ send("/start", "Starting server..."); }
-function stop(){ send("/stop", "Stopping server..."); }
-function restart(){ send("/restart", "Restarting server..."); }
+/* STATUS */
+async function update(){
+    try{
+        const res = await fetch(API + "/status");
+        const data = await res.json();
+
+        document.getElementById("status").innerText = data.state;
+        document.getElementById("players").innerText = data.players;
+
+    }catch{
+        log("Cannot reach server");
+    }
+}
+
+setInterval(update,3000);
+update();
 
 </script>
 
