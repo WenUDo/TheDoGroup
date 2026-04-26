@@ -1,44 +1,54 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Hosting Panel</title>
+<title>Minecraft Network Panel</title>
 
-<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
 <style>
+
 body{
 margin:0;
-font-family:Arial;
-background:#070b14;
+background:#0b0f1a;
 color:white;
+font-family:Arial;
 display:flex;
 }
 
 .sidebar{
 width:220px;
-background:#020617;
+background:#111827;
 height:100vh;
 padding:10px;
 }
 
-.sidebar button{
-width:100%;
-padding:10px;
-margin:5px 0;
-background:#111827;
-border:none;
-color:white;
-cursor:pointer;
-border-radius:6px;
+.sidebar h2{
+font-family:"Press Start 2P";
+font-size:12px;
+text-align:center;
 }
 
-.main{flex:1;padding:20px;}
+.sidebar button{
+width:100%;
+margin:5px 0;
+padding:10px;
+background:#1f2937;
+color:white;
+border:none;
+cursor:pointer;
+}
+
+.main{
+flex:1;
+padding:20px;
+}
 
 .card{
 background:#111827;
 padding:15px;
 margin-bottom:15px;
 border-radius:10px;
+border:1px solid #1f2937;
 }
 
 button{
@@ -46,7 +56,7 @@ padding:8px;
 border:none;
 border-radius:6px;
 cursor:pointer;
-margin:4px;
+margin:3px;
 }
 
 .green{background:#22c55e}
@@ -61,12 +71,24 @@ padding:10px;
 font-family:monospace;
 color:#55ff55;
 }
+
+.badge{
+padding:5px 10px;
+border-radius:20px;
+display:inline-block;
+}
+
+.online{background:#22c55e}
+.offline{background:#ef4444}
+.starting{background:#facc15}
+
 </style>
 </head>
 
 <body>
 
 <div class="sidebar">
+<h2>MINE PANEL</h2>
 <button onclick="show('dash')">Dashboard</button>
 <button onclick="show('ops')">Operator</button>
 <button onclick="show('players')">Players</button>
@@ -77,8 +99,9 @@ color:#55ff55;
 
 <div id="dash">
 <div class="card">
-<h2>Status: <span id="status">...</span></h2>
+<h3>Status: <span id="status">...</span></h3>
 <p>RAM: <span id="ram">-</span> MB</p>
+
 <button class="green" onclick="start()">Start</button>
 <button class="red" onclick="stop()">Stop</button>
 <button class="blue" onclick="restart()">Restart</button>
@@ -87,7 +110,7 @@ color:#55ff55;
 
 <div id="ops" style="display:none">
 <div class="card">
-<h3>Operator</h3>
+<h3>Operator Tools</h3>
 <button onclick="cmd('gamemode creative @a')">Creative</button>
 <button onclick="cmd('gamemode survival @a')">Survival</button>
 <button onclick="cmd('time set day')">Day</button>
@@ -98,7 +121,6 @@ color:#55ff55;
 <div id="players" style="display:none">
 <div class="card">
 <h3>Players</h3>
-
 <div id="plist"></div>
 
 <input id="pname" placeholder="player">
@@ -120,12 +142,6 @@ color:#55ff55;
 
 const API="https://flashy-stardust-endless.ngrok-free.dev";
 const KEY="my-secret-key-123";
-
-const socket = io(API);
-
-socket.on("log",(data)=>{
-document.getElementById("log").innerHTML += data + "<br>";
-});
 
 function show(id){
 document.querySelectorAll('.main > div').forEach(d=>d.style.display='none');
@@ -167,6 +183,12 @@ document.getElementById("status").innerText=s.state;
 
 const st=await fetch(API+"/stats").then(r=>r.json());
 document.getElementById("ram").innerText=st.ram;
+
+const p=await fetch(API+"/players").then(r=>r.json());
+document.getElementById("plist").innerText=p.raw;
+
+const c=await fetch(API+"/console").then(r=>r.json());
+document.getElementById("log").innerHTML=c.logs.join("<br>");
 }
 
 setInterval(update,3000);
